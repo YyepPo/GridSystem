@@ -1,0 +1,8 @@
+*
+!*.cpp
+!*.h
+!*/
+!.gitignore
+Intermediate/*
+Plugins/*/Intermediate/*
+!README.md
