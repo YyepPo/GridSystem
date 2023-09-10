@@ -38,7 +38,7 @@ protected:
 	bool CanAttack(AActor* target);
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void OnAttackDealDamage(); //used to be overriden by child class,is used in OnAttackDealDamageAnimNotify()
-	void DamageBehaviour(AInfantryBase* unitTarget);
+	void DamageBehaviour(AActor* target);
 	virtual void StartToAttack();
 
 	/// <summary>
@@ -87,6 +87,8 @@ private:
 		void OnAttackDealDamageAnimNotify();//used for animation notify
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		EDeathPose deathPose;
+
+
 
 
 };

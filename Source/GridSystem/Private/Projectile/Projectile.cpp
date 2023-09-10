@@ -1,5 +1,6 @@
 #include "Projectile/Projectile.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "HitInterface.h"
 

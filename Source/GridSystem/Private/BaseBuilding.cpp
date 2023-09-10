@@ -123,7 +123,7 @@ bool ABaseBuilding::HasPlayerEnoughResourcesToLevelUpBuilding()
 	//check if player has enough resources to upgrade the building
 	if (!resource) { return false; }
 
-	for (int32 i = 0; i < upgradeCosts.Num() + 1; i++)
+	for (int32 i = 0; i < upgradeCosts.Num(); i++)
 	{
 		if (i == buildingLevelData.currentLevel)
 		{

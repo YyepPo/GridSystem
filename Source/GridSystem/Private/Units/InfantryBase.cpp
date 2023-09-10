@@ -4,7 +4,7 @@
 #include "DrawDebugHelpers.h"
 #include "HitInterface.h"
 #include "Units/FriendlyInfantry.h"
-
+#include "Buildings/DefenseTower.h"
 AInfantryBase::AInfantryBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -99,23 +99,23 @@ void AInfantryBase::OnAttackDealDamage()
 
 }
 
-void AInfantryBase::DamageBehaviour(AInfantryBase* unitTarget)
+void AInfantryBase::DamageBehaviour(AActor* target)
 {
-	if (unitTarget)
+	if (target)
 	{
-		UGameplayStatics::ApplyDamage(unitTarget,
+		UGameplayStatics::ApplyDamage(target,
 			attackDamage,
 			GetController(),
 			this,
 			UDamageType::StaticClass());
 
-		IHitInterface* hit = Cast<IHitInterface>(unitTarget);
+		IHitInterface* hit = Cast<IHitInterface>(target);
 		if (hit)
 		{
 			hit->OnHit();
 			if (hit->OnDeath())
 			{
-				unitTarget = nullptr;
+				target = nullptr;
 			}
 		}
 	}

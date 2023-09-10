@@ -123,7 +123,7 @@ protected:
 		FBuildingLevelData buildingLevelData;
 	UPROPERTY(EditAnywhere, Category = "Level")
 		TArray<FUpgradeCost> upgradeCosts;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* StaticMesh;
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 		USoundBase* levelUpSound;

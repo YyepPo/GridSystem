@@ -32,7 +32,7 @@ class AAIController;
 class AUnitAIController;
 
 UCLASS()
-class GRIDSYSTEM_API AUnitBase : public ACharacter,public IMoveToTargetInterface
+class GRIDSYSTEM_API AUnitBase : public ACharacter,public IMoveToTargetInterface 
 {
 	GENERATED_BODY()
 
@@ -50,7 +50,6 @@ public:
 
 	FORCEINLINE bool GetIsSelected() const { return bIsSelected; }
 	FORCEINLINE bool IsUnitDead() const { return isDead == true; }
-
 
 protected:
 

@@ -32,9 +32,16 @@ void AEnemyInfatry::Tick(float DeltaTime)
 
 	if (IsUnitDead()) { return; }
 
+
+	if (IsTowerTargetValid())
+	{
+		if (CanAttack(towerTarget)) StartToAttack();
+		return;
+	}
+
 	if (!IsTargetValid())
 	{
-		CheckForClosestTargett(currentFriendlyUnitTarget, overlapingInfantry);
+		if(overlapingInfantry.Num() > 0) CheckForClosestTargett(currentFriendlyUnitTarget, overlapingInfantry);
 		return;
 	}
 	CanAttack(currentFriendlyUnitTarget) ? StartToAttack() : MoveToTargetInterface(currentFriendlyUnitTarget);
@@ -44,15 +51,21 @@ void AEnemyInfatry::MoveToTarget(AActor* target)
 {
 	Super::MoveToTarget(target);
 	currentFriendlyUnitTarget = currentFriendlyUnitTarget == nullptr ? Cast<AFriendlyInfantry>(currentFriendlyUnitTarget) : currentFriendlyUnitTarget;
+
 }
 
 //this one
 bool AEnemyInfatry::IsTargetValid()
 {
+	//check if tower is still alive, if is not then look for the closest target
 	return currentFriendlyUnitTarget != nullptr && !currentFriendlyUnitTarget->IsUnitDead();
 }
 
-//try this one
+bool AEnemyInfatry::IsTowerTargetValid()
+{
+	return towerTarget != nullptr;
+}
+
 void AEnemyInfatry::StartToAttack()
 {
 	Super::StartToAttack();
@@ -61,7 +74,15 @@ void AEnemyInfatry::StartToAttack()
 
 void AEnemyInfatry::OnAttackDealDamage()
 {
-	DamageBehaviour(currentFriendlyUnitTarget);
+	if (towerTarget)
+	{
+		DamageBehaviour(towerTarget);
+		IHitInterface* hitInterface = Cast<IHitInterface>(towerTarget);     //Temporary
+		if (hitInterface && hitInterface->OnDeath()) towerTarget = nullptr; //Temporary
+	}
+	else if(currentFriendlyUnitTarget)
+		DamageBehaviour(currentFriendlyUnitTarget);
+
 }
 
 void AEnemyInfatry::IsAttackAble()
@@ -83,8 +104,17 @@ bool AEnemyInfatry::IsTargetDead(IHitInterface* hitInterface)
 void AEnemyInfatry::SphereOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AInfantryBase* targetUnitt = Cast<AInfantryBase>(OtherActor);
-	if (!targetUnitt) { return; }
-	OnCollisionBehaviour(*targetUnitt, overlapingInfantry,currentFriendlyUnitTarget);
+	if (targetUnitt)
+	{
+		OnCollisionBehaviour(*targetUnitt, overlapingInfantry,currentFriendlyUnitTarget);
+	}
+
+	ADefenseTower* tower = Cast<ADefenseTower>(OtherActor);
+	if (tower)
+	{
+		towerTarget = tower;
+		MoveToTarget(towerTarget);
+	}
 }
 
 void AEnemyInfatry::SphereOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

@@ -56,7 +56,9 @@ void AUnitBase::PlayAMontageWithSection(UAnimMontage* montage, FName sectionName
 
 bool AUnitBase::IsInAttackRange(AActor* target)
 {
-	if (!target) { return false; }
+	if (!target) { 
+		UE_LOG(LogTemp,Warning,TEXT("Target is not valid fomr is in attack range function"))
+		return false; }
 	const float distanceBtwTarget = (target->GetActorLocation() - GetActorLocation()).Size();
 	return distanceBtwTarget < attackDistance;
 }

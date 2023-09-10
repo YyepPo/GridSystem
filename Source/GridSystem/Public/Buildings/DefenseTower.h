@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseBuilding.h"
+#include "HitInterface.h"
 #include "DefenseTower.generated.h"
 
 class UBoxComponent;
@@ -19,8 +20,18 @@ enum class ETowerState : uint8
 	ETS_NONE
 };
 
+USTRUCT(BlueprintType)
+struct FUpgradingData
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere)
+		UStaticMesh* mesh;
+	UPROPERTY(EditAnywhere)
+		float damage;
+};
+
 UCLASS()
-class GRIDSYSTEM_API ADefenseTower : public ABaseBuilding
+class GRIDSYSTEM_API ADefenseTower : public ABaseBuilding, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -32,6 +43,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void OnHit() override;
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnTowerHit();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnTowerDestroyed();
+	virtual bool OnDeath() override;
 
 	virtual void OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) override;
 	virtual void LevelupFunctionality() override;
@@ -43,7 +60,6 @@ private:
 
 	void StartToAttack();
 	void BackToUnocuppiedState();
-	//void BackToAttack
 
 	UPROPERTY(VisibleAnywhere,Category = "Tower State")
 		ETowerState towerState = ETowerState::ETS_Idle;
@@ -58,14 +74,17 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 		float attackRate;
-	FTimerHandle attackTimerRateHandle;
-	FTimerHandle unocuppiedTimerStateHandle;
+	float projectileDamage;
+
 	UPROPERTY(EditAnywhere)
-		TArray<UStaticMesh*> staticMeshs;
+		TArray<FUpgradingData> upgradeData;
 	UPROPERTY(EditAnywhere)
 		UBoxComponent* enemyDedectionCollider;
 	UPROPERTY(EditAnywhere)
 		USceneComponent* projectileSpawnPoint;
 	UPROPERTY(EditAnywhere)
 		UHealthComponent* healthComponent;
+
+	FTimerHandle attackTimerRateHandle;
+	FTimerHandle unocuppiedTimerStateHandle;
 };

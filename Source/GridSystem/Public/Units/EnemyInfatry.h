@@ -5,6 +5,8 @@
 #include "Units/IsAttackableInterface.h"
 #include "EnemyInfatry.generated.h"
 
+class ADefenseTower;
+
 UCLASS()
 class GRIDSYSTEM_API AEnemyInfatry : public AInfantryBase, public IIsAttackableInterface
 {
@@ -36,14 +38,17 @@ private:
 	/// Combat
 	/// </summary>
 	bool IsTargetValid();
+	bool IsTowerTargetValid();
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 		TArray<class AInfantryBase*> overlapingInfantry;
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 		AInfantryBase* currentFriendlyUnitTarget;
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 		TArray<AActor*> overlapingActors;
-	AActor* currentTargetTower;
 	bool IsInAttackRangeOfActor(AActor* actor);
 
 	bool DedectTarget(FHitResult& hitResult);
+
+		UPROPERTY(EditAnywhere,Category = "Combat")
+	ADefenseTower* towerTarget;
 };

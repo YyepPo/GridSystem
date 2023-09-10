@@ -15,6 +15,8 @@ class GRIDSYSTEM_API AProjectile : public AActor
 	
 public:	
 	AProjectile();
+
+	FORCEINLINE void SetProjectileDamage(float damage) { damageAmount = damage; }
 protected:
 	virtual void BeginPlay() override;
 	
@@ -34,7 +36,7 @@ private:
 
 	IHitInterface* hitInterface;
 
-	float damageAmount = 50.f;
+	float damageAmount = 1.f;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* staticMesh;

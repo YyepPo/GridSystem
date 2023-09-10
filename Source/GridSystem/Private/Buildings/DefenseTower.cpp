@@ -47,6 +47,22 @@ float ADefenseTower::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	return DamageAmount;
 }
 
+void ADefenseTower::OnHit()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tower has taken some damage OnHit Func"));
+	OnTowerHit();
+}
+
+bool ADefenseTower::OnDeath()
+{
+	if (healthComponent->GetCurrentHealthAmount() <= 0)
+	{
+		OnTowerDestroyed();
+		return true;
+	}
+	return false;
+}
+
 void ADefenseTower::OnTowerDestroyedDelegateHandler()
 {
 	Destroy();
@@ -54,8 +70,7 @@ void ADefenseTower::OnTowerDestroyedDelegateHandler()
 
 void ADefenseTower::StartToAttack()
 {
-	if (!closestEnemy) { 
-		return; }
+	if (!closestEnemy) { return; }
 	if (overlapingEnemies.Num() == 0) { return; }
 
 	//Spawn a projectile in direction to the enemy
@@ -64,7 +79,11 @@ void ADefenseTower::StartToAttack()
 	if (projectileClass)
 	{
 		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, spawnPoint, lookAtRotation);
-		if (projectile) projectile->SetOwner(this);
+		if (projectile)
+		{
+			projectile->SetOwner(this);
+			projectile->SetProjectileDamage(projectileDamage);
+		}
 	}
 
 	//set tower state to attacking so the tower doesn't attack multiple times
@@ -105,13 +124,15 @@ void ADefenseTower::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, 
 void ADefenseTower::LevelupFunctionality()
 {
 	Super::LevelupFunctionality();
-	if (staticMeshs.Num() == 0) { return; }
+	if (upgradeData.Num() == 0) { return; }
 
-	for (int32 i = 0; i < buildingLevelData.maxLevel + 1; i++)
+	for (int32 i = 0; i < upgradeData.Num(); i++)
 	{
-		if (buildingLevelData.currentLevel == i)
+		if (i == buildingLevelData.currentLevel)
 		{
-			StaticMesh->SetStaticMesh(staticMeshs[i]);
+			StaticMesh->SetStaticMesh(upgradeData[i].mesh);
+			projectileDamage = upgradeData[i].damage;
+			UE_LOG(LogTemp, Warning, TEXT("projectiles damage is : %f"), projectileDamage);
 		}
 	}
 }
