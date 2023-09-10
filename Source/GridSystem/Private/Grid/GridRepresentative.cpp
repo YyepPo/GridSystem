@@ -22,7 +22,6 @@ void AGridRepresentative::InitializeComponents()
 void AGridRepresentative::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AGridRepresentative::OccupyGrid()
@@ -37,13 +36,27 @@ void AGridRepresentative::OccupyGrid()
 	//Change the GrisState to occupied
 	GridState = EGridState::EGS_Occupied;
 
-	//When occupied change the grid's material color to (OccupiedColor)
-	//so the players knows if the grid is occupied or not
+	ChangeMaterialColor(occupiedColor, occupiedColor);
+}
+
+void AGridRepresentative::UnOccupyGrid()
+{
+	//Check if grid is occupied
+	if (GridState != EGridState::EGS_Occupied) { return; }
+
+	ChangeMaterialColor(occupiedColor,unOccupiedColor);
+}
+
+void AGridRepresentative::ChangeMaterialColor(FLinearColor newOccupiedColor,FLinearColor newUnoccupiedColor)
+{
+	//When occupied, change the grid's material color
 	UMaterialInstanceDynamic* materialInstance = StaticMesh->CreateDynamicMaterialInstance(0);
 	if (materialInstance)
 	{
 		const FName baseColorParameter = FName(TEXT("BaseColor"));
-		materialInstance->SetVectorParameterValue(baseColorParameter, OccupiedColor);
+		const FName secondColorParameter = FName(TEXT("SecondColor"));
+		materialInstance->SetVectorParameterValue(baseColorParameter, newOccupiedColor);
+		materialInstance->SetVectorParameterValue(secondColorParameter, newUnoccupiedColor);
 	}
 }
 

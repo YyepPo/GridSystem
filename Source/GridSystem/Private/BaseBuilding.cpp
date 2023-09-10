@@ -95,14 +95,16 @@ void ABaseBuilding::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, 
 //when level up tick button is clicked
 void ABaseBuilding::TickButtonClicked()
 {
+	UE_LOG(LogTemp, Warning, TEXT("%d"), buildingLevelData.currentLevel);
+
 	LevelupFunctionality();
 }
 
 void ABaseBuilding::LevelupFunctionality()
 {
-	if (HasReachedMaxLevel()) { return; }
 
 	SetUpLevelWidgetTexts(buildingLevelData.currentLevel);
+	if (HasReachedMaxLevel()) { return; }
 	SetUpUpgradeCostText();
 
 	//check if player has enough resources

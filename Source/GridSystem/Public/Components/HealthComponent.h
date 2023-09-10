@@ -13,11 +13,12 @@ class GRIDSYSTEM_API UHealthComponent : public UActorComponent
 
 public:	
 	UHealthComponent();
+	FOnTowerDestroyed OnTowerDestroyedDelegate;
 
 	void TakeDamage(float damageAmount);
 
-	FOnTowerDestroyed OnTowerDestroyedDelegate;
-
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetHealthPercentage() {return heathPercentage;}
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 		FORCEINLINE float GetCurrentHealthAmount() const {return currentHealth;}
 	UFUNCTION()
@@ -32,5 +33,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		float currentHealth;
 	UPROPERTY(VisibleAnywhere)
+		float heathPercentage;
+	UPROPERTY()
 		bool bIsTowerDestroyed;
 };

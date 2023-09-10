@@ -24,11 +24,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void OccupyGrid();
+	UFUNCTION(BlueprintCallable)
+		void UnOccupyGrid();
+
+	FORCEINLINE bool IsOccupied() { return GridState == EGridState::EGS_Occupied; }
 protected:
 	virtual void BeginPlay() override;
 
 private:	
 	void InitializeComponents();
+
+	void ChangeMaterialColor(FLinearColor newOccupiedColor, FLinearColor newUnoccupiedColor);
 
 	UPROPERTY(EditAnywhere)
 		class UBoxComponent* BoxCollider;
@@ -38,9 +44,7 @@ private:
 	UPROPERTY(VisibleAnywhere,Category = "Grid")
 		EGridState GridState = EGridState::EGS_UnOccupied;
 	UPROPERTY(EditAnywhere, Category = "Grid")
-		FLinearColor OccupiedColor;
+		FLinearColor occupiedColor;
 	UPROPERTY(EditAnywhere, Category = "Grid")
-		FLinearColor UnOccupiedColor;
-public:
-	FORCEINLINE bool IsOccupied() { return GridState == EGridState::EGS_Occupied; }
+		FLinearColor unOccupiedColor;
 };

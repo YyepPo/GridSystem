@@ -1,9 +1,19 @@
 #include "Buildings/DefenseTower.h"
+
 #include "Components/BoxComponent.h"
-#include "Units/EnemyInfatry.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Projectile/Projectile.h"
 #include "Components/HealthComponent.h"
+#include "Components/WidgetComponent.h"
+
+#include "HUD/HealthBarWidget.h"
+
+#include "Grid/GridRepresentative.h"
+
+#include "Projectile/Projectile.h"
+
+#include "Units/EnemyInfatry.h"
+
+#include "Kismet/KismetMathLibrary.h"
+
 #include "DrawDebugHelpers.h"
 
 ADefenseTower::ADefenseTower() :
@@ -11,11 +21,15 @@ ADefenseTower::ADefenseTower() :
 	projectileSpawnPoint {CreateDefaultSubobject<USceneComponent>(FName(TEXT("Projectile Spawn Point")))},
 	healthComponent {CreateDefaultSubobject<UHealthComponent>(FName(TEXT("Health Components")))}
 {
-
 	PrimaryActorTick.bCanEverTick = true;
 
 	enemyDedectionCollider->SetupAttachment(GetRootComponent());
 	projectileSpawnPoint->SetupAttachment(GetRootComponent());
+}
+
+void ADefenseTower::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 }
 
 void ADefenseTower::BeginPlay()
@@ -43,7 +57,7 @@ float ADefenseTower::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	
 	healthComponent->TakeDamage(DamageAmount);
-
+	if(healthBarWidget)healthBarWidget->UpdateHealthBarPercentage(healthComponent->GetHealthPercentage());
 	return DamageAmount;
 }
 
@@ -58,6 +72,17 @@ bool ADefenseTower::OnDeath()
 	if (healthComponent->GetCurrentHealthAmount() <= 0)
 	{
 		OnTowerDestroyed();
+		FHitResult hitResult;
+		const FVector startPos = GetActorLocation();
+		const FVector endPos = startPos + GetActorUpVector() * 50.f;
+		FCollisionQueryParams param;
+		param.AddIgnoredActor(this);
+		const bool hasHit = GetWorld()->LineTraceSingleByChannel(hitResult, startPos, endPos, ECC_Visibility, param);
+		if (hasHit)
+		{
+			AGridRepresentative* occupiedGrid = Cast<AGridRepresentative>(hitResult.GetActor());
+			if (occupiedGrid) occupiedGrid->UnOccupyGrid();
+		}
 		return true;
 	}
 	return false;

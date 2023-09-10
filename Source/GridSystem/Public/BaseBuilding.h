@@ -38,7 +38,7 @@ struct FBuildingLevelData
 	GENERATED_BODY()
 public:
 	UPROPERTY(VisibleAnywhere)
-		int32 currentLevel = 0;
+		int32 currentLevel = 1;
 	UPROPERTY(EditAnywhere)
 		int32 maxLevel;
 };

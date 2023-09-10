@@ -9,6 +9,7 @@ class UBoxComponent;
 class AEnemyInfatry;
 class AProjectile;
 class UHealthComponent;
+class UHealthBarWidget;
 
 UENUM(BlueprintType)
 enum class ETowerState : uint8
@@ -40,6 +41,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 protected:
+	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -52,6 +54,9 @@ protected:
 
 	virtual void OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) override;
 	virtual void LevelupFunctionality() override;
+
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void SetHealthBarWidget(UHealthBarWidget* newHealthBarWidget) {healthBarWidget = newHealthBarWidget;}
 private:
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -76,13 +81,16 @@ private:
 		float attackRate;
 	float projectileDamage;
 
+	UPROPERTY()
+		UHealthBarWidget* healthBarWidget;
+
 	UPROPERTY(EditAnywhere)
 		TArray<FUpgradingData> upgradeData;
 	UPROPERTY(EditAnywhere)
 		UBoxComponent* enemyDedectionCollider;
 	UPROPERTY(EditAnywhere)
 		USceneComponent* projectileSpawnPoint;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UHealthComponent* healthComponent;
 
 	FTimerHandle attackTimerRateHandle;
