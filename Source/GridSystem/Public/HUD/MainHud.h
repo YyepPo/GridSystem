@@ -47,8 +47,14 @@ private:
 		FLinearColor RectangleSelectionColor;
 	UPROPERTY(EditAnywhere, Category = "Rectangle")
 		TSubclassOf<class AUnitBase> UnitBaseClass;
+	UPROPERTY(EditAnywhere, Category = "Rectangle")
+		TSubclassOf<class UUnitComponent> unitComponentClass;
+	TArray<UUnitComponent*> unitComponents;
+
+
 	TArray<AActor*> selectedActors;
 	TArray<AUnitBase*> selectedUnits;
+
 public:
 	UPROPERTY()
 		UBuildingSelection* BuildingHUD;
@@ -58,4 +64,5 @@ public:
 		UResourceWidget* ResourceWidget;
 
 	FORCEINLINE TArray<AUnitBase*> GetSelectedUnits() const { return selectedUnits; }
+	FORCEINLINE TArray<UUnitComponent*> GetSelectedUnitComponents() const { return unitComponents; }
 };

@@ -11,7 +11,6 @@ AArcherGenerator::AArcherGenerator() :
 	UnitsGridComponent { CreateDefaultSubobject<UUnitsGridComponent>(FName(TEXT("Units Grid Component"))) },
 	UnitsGridLocation{ CreateDefaultSubobject<USceneComponent>(FName(TEXT("Units Grid Location"))) }
 {
-	//create the necessary grid component  and grid location (units position after spawned)
 	UnitsGridLocation->SetupAttachment(GetRootComponent());
 	UnitsGridComponent->SetComponentOwner(this);
 }
@@ -19,6 +18,7 @@ AArcherGenerator::AArcherGenerator() :
 void AArcherGenerator::BeginPlay()
 {
 	Super::BeginPlay();
+	//Spawn the grid for units
 	if (!bIsFriendlyBuilding && UnitsGridComponent)
 	{
 		UnitsGridComponent->SpawnUnitsGrid();
@@ -60,7 +60,7 @@ void AArcherGenerator::BuildingFunctionalityTimer()
 		{
 			if (playerPawn) spawnedUnits[i]->MoveToTargetInterface(playerPawn);
 		}
-		//clear the FTimerHandle so this function after all units are spawned its called once
+		//clear the FTimerHandle, so this function its called once  after all units are spawned 
 		GetWorld()->GetTimerManager().ClearTimer(BuildingFunctionalityTimerHandle);
 		return; 
 	}

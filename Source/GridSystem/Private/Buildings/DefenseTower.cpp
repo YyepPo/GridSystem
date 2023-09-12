@@ -46,6 +46,7 @@ void ADefenseTower::Tick(float DeltaSeconds)
 	if (overlapingEnemies.Num() == 0) { return; }
 	if (!closestEnemy) { return; }
 
+	//This prevents the tower to attack at every frame
 	if (towerState != ETowerState::ETS_Attacking)
 	{
 		StartToAttack();
@@ -58,12 +59,12 @@ float ADefenseTower::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	
 	healthComponent->TakeDamage(DamageAmount);
 	if(healthBarWidget)healthBarWidget->UpdateHealthBarPercentage(healthComponent->GetHealthPercentage());
+
 	return DamageAmount;
 }
 
 void ADefenseTower::OnHit()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tower has taken some damage OnHit Func"));
 	OnTowerHit();
 }
 
@@ -71,7 +72,10 @@ bool ADefenseTower::OnDeath()
 {
 	if (healthComponent->GetCurrentHealthAmount() <= 0)
 	{
+		//BlueprintImplementableEvent
 		OnTowerDestroyed();
+
+		//After the tower's destruction, unoccupy the grid it once occupied.
 		FHitResult hitResult;
 		const FVector startPos = GetActorLocation();
 		const FVector endPos = startPos + GetActorUpVector() * 50.f;
@@ -151,6 +155,7 @@ void ADefenseTower::LevelupFunctionality()
 	Super::LevelupFunctionality();
 	if (upgradeData.Num() == 0) { return; }
 
+	//On Level up upgrade static mesh and the projectile damage amount
 	for (int32 i = 0; i < upgradeData.Num(); i++)
 	{
 		if (i == buildingLevelData.currentLevel)

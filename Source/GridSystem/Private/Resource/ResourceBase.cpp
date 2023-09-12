@@ -61,7 +61,7 @@ float AResourceBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	loadedDataAsset->OnResourceHit(resource);
 
 	if (IsResourceDestroyed()) { return 0; }
-	//health amount doesnt go below zero
+	//Prevents health amount to go below zero
 	health = FMath::Max(health - DamageAmount, 0);
 
 	//play a hit vfx and sound

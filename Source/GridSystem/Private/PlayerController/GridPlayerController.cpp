@@ -14,9 +14,5 @@ void AGridPlayerController::BeginPlay()
 	
 	//A reference to all widgets so the playerCharacter class can use it
 	ShowBuildingReference = HUD->BuildingHUD->ShowSelectedBuildingWidgetClass;
-	if (ShowBuildingReference)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PO"));
-	}
 	BuildingSelectionWidgetReference = HUD->BuildingHUD;
 }

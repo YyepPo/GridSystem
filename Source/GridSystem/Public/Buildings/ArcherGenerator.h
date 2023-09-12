@@ -37,7 +37,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Units")
 		TSubclassOf<AUnitBase> UnitToBeSpawned;
 	UPROPERTY(EditAnywhere, Category = "Units")
-		int32 spawnedUnitCounter;
+		int32 spawnedUnitCounter; 
 	UPROPERTY(VisibleAnywhere, Category = "Units")
 		TArray<AUnitBase*> spawnedUnits;
 	UPROPERTY(EditAnywhere, Category = "Units")

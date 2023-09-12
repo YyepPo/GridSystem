@@ -44,12 +44,14 @@ void AGridRepresentative::UnOccupyGrid()
 	//Check if grid is occupied
 	if (GridState != EGridState::EGS_Occupied) { return; }
 
+	//Update grid state to unoccupy , so another building can be attached to this grid
+	GridState = EGridState::EGS_UnOccupied;
+
 	ChangeMaterialColor(occupiedColor,unOccupiedColor);
 }
 
 void AGridRepresentative::ChangeMaterialColor(FLinearColor newOccupiedColor,FLinearColor newUnoccupiedColor)
 {
-	//When occupied, change the grid's material color
 	UMaterialInstanceDynamic* materialInstance = StaticMesh->CreateDynamicMaterialInstance(0);
 	if (materialInstance)
 	{

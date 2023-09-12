@@ -25,6 +25,10 @@
 
 #include "Units/EnemyInfatry.h"
 #include "Units/IsAttackableInterface.h"
+
+#include "NewUnit/NewFriendlyUnit.h"
+#include "NewUnit/UnitComponent.h"
+
 APlayerCharacter::APlayerCharacter() :
 	SpringArm{ CreateDefaultSubobject<USpringArmComponent>(FName(TEXT("Spring Arm"))) },
 	Camera{ CreateDefaultSubobject<UCameraComponent>(FName(TEXT("Camera"))) }
@@ -51,21 +55,16 @@ void APlayerCharacter::BeginPlay()
 
 	GetTheMainHUD();
 
-	//Set the ResourceManager's PlayerCharacter(APlayerCharcater) to this class
 	GetWorld()->SpawnActor<AUnitBase>(UnitClllas, GetActorLocation(), GetActorRotation());		
 
-	if (GetWorld() && gridRepresentativeClass)
-	{
-		for (int32 i = 0; i < columns * rows; i++)
-		{
-			AGridRepresentative* grid = GetWorld()->SpawnActor<AGridRepresentative>(gridRepresentativeClass, GetActorLocation(), GetActorRotation());
-			if(grid) horizontalFormationGrids.AddUnique(grid);
-		}
-	}
+	SpawnFormationGrid();
 }
 
 void APlayerCharacter::GetTheMainHUD()
 {
+	///REFACTOR OR DELETE IF ITS NOT IN USE
+
+
 	//Get player controller and from there get Hud (AMainHud)
 	GridPlayerController = Cast<AGridPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (GridPlayerController)
@@ -81,7 +80,18 @@ void APlayerCharacter::GetTheMainHUD()
 
 		}
 	}
-	
+}
+
+void APlayerCharacter::SpawnFormationGrid()
+{
+	if (GetWorld() && gridRepresentativeClass)
+	{
+		for (int32 i = 0; i < columns * rows; i++)
+		{
+			AGridRepresentative* grid = GetWorld()->SpawnActor<AGridRepresentative>(gridRepresentativeClass, GetActorLocation(), GetActorRotation());
+			if (grid) horizontalFormationGrids.AddUnique(grid);
+		}
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -135,8 +145,7 @@ void APlayerCharacter::AttachBuildingToGrid()
 	//If inventory is open and there is not current building(not building selected) then building cannot be attached to grid
 	if (!currentBuilding) { return; }
 	if (bIsInventoryOpen ) { return; }
-	/*Check if current building can occupie more then one gridand if one of the neighbours of the current selected grid is occupied
-	if it is then building cannot be attached to grid*/
+	/*Check if current building can occupy more then one grid and if one of the neighbours is occupied then building cannot be attached to grid*/
 	const bool bIsOneOfTheNeighboursOccupied = currentBuilding->GetOccupiesNeighbours() && (bNorthNeighbourIsOccupied || bSouthNeighbourIsOccupied || bEastNeighbourIsOccupied || bWesthNeighbourIsOccupied);
 	if (bIsOneOfTheNeighboursOccupied) { return; }
 
@@ -152,10 +161,10 @@ void APlayerCharacter::AttachBuildingToGrid()
 		//When Building is placed start the building functionality
 		placedBuilding->BuildingFunctionality();
 
-		//Occupie the grid
+		//Occupy the grid
 		currentGrid->OccupyGrid();
 
-		//And set the current building to null so later when another selected building can be placed
+		//And set the current building to null so later on another building can be selected and placed
 		currentBuilding = nullptr;
 	}
 }
@@ -177,12 +186,13 @@ void APlayerCharacter::LeftMouseButtonReleased()
 
 void APlayerCharacter::UnitBehaviour()
 {
+	//Offset between each formation grid
 	rightOffset = 0.f;
 
 	//If MainHud and GridPlayerController doesnt exists then do nothing
 	if (!MainHud && !GridPlayerController) { return; }
 	//If there is no unit selected do nothing
-	if (MainHud->GetSelectedUnits().Num() == 0) { return; }
+	if (MainHud->GetSelectedUnitComponents().Num() == 0) { return; }
 	
 	//Convert current 2d mouse position to 3d world space position and direction , so the units can move to a selected location
 	FVector mousePosition;
@@ -198,11 +208,16 @@ void APlayerCharacter::UnitBehaviour()
 	//Perform a line trace from the starting position to the end position
 	const bool bHasHit = GetWorld()->LineTraceSingleByChannel(hitResult, startPosition, endPosition, ECollisionChannel::ECC_Visibility);
 
-	if (!bHasHit) { return; }
+	if (!bHasHit) { 
+		UE_LOG(LogTemp, Warning, TEXT("Line trace didnt hit"));
+		return; }
 
 	//if line trace has hit, create an array of AUnitBase based on MainHud's selected unit array
 	TArray<AUnitBase*> selectedUnits = MainHud->GetSelectedUnits();
 
+	TArray<UUnitComponent*> selectedUnitComponents = MainHud->GetSelectedUnitComponents();
+
+	//change formation direction(horizontal formation,or vertical formation)
 	for (int32 k = 0; k < horizontalFormationGrids.Num(); k++)
 	{
 		const FVector endPos = hitResult.ImpactPoint + formationDirection * rightOffset;
@@ -210,21 +225,34 @@ void APlayerCharacter::UnitBehaviour()
 		rightOffset += 300.f;
 	}
 
-	for (int32 i = 0; i < selectedUnits.Num(); i++)
+	for (int32 i = 0; i < selectedUnitComponents.Num(); i++)
 	{
-		if (!selectedUnits[i]->GetIsSelected()) { return; }
-		bWasSelected = true;
-
-		if (IIsAttackableInterface* attackAbleInterface = Cast<IIsAttackableInterface>(hitResult.GetActor()))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *hitResult.GetActor()->GetActorNameOrLabel());
-			selectedUnits[i]->MoveToTargetInterface(hitResult.GetActor());
-		}
-		else
-		{
-				if(bWasSelected) selectedUnits[i]->Move(horizontalFormationGrids[i]->GetActorLocation());
-		}
+		if (!selectedUnitComponents[i]->GetIsUnitSelected()) { 
+			UE_LOG(LogTemp, Warning, TEXT("Unit is not selected"));
+			return; }
+		selectedUnitComponents[i]->NewMove(hitResult.ImpactPoint);
+		UE_LOG(LogTemp, Warning, TEXT("mOVE"));
 	}
+
+	//for (int32 i = 0; i < selectedUnits.Num(); i++)
+	//{
+	//	if (!selectedUnits[i]->GetIsSelected()) { return; }
+	//	bWasSelected = true;
+	//
+	//	if (IIsAttackableInterface* attackAbleInterface = Cast<IIsAttackableInterface>(hitResult.GetActor()))
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("%s"), *hitResult.GetActor()->GetActorNameOrLabel());
+	//		selectedUnits[i]->MoveToTargetInterface(hitResult.GetActor());
+	//	}
+	//	else
+	//	{
+	//		if (bWasSelected)
+	//		{
+	//			selectedUnits[i]->Move(horizontalFormationGrids[i]->GetActorLocation());
+	//			UE_LOG(LogTemp, Warning, TEXT("Player move"));
+	//		}
+	//	}
+	//}
 }
 
 #pragma endregion InputBindings
@@ -233,10 +261,10 @@ void APlayerCharacter::DedectGrid()
 {
 	if (!currentBuilding) { return; }
 
-	//Declare a HitResult variable to store information about the hit
 	FHitResult HitResult;
 	if (GetWorld())
 	{
+		//Get mouse position
 		FVector worldLocation;
 		FVector worldDirection;
 		GridPlayerController->DeprojectMousePositionToWorld(worldLocation, worldDirection);

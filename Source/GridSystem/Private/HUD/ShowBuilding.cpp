@@ -7,6 +7,7 @@
 
 #include "Player/PlayerCharacter.h"
 #include "Player/ResourceManager.h"
+#include "Resource/Resource.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -103,9 +104,9 @@ void UShowBuilding::PurchaseBuilding()
 {
 	if (!BuildingWidget && !resource) {return; }
 
-	const int coinAmount = resource->GetCoinAmount();
-	const int woodAmount = resource->GetWoodAmount();
-	const int stoneAmount = resource->GetStoneAmount();
+	const int32 coinAmount = resource->GetCoinAmount();
+	const int32 woodAmount = resource->GetWoodAmount();
+	const int32 stoneAmount = resource->GetStoneAmount();
 	//check if there are enough resource to purchase a building
 	if (coinAmount <= 0 || woodAmount <= 0 || stoneAmount <= 0)
 	{
@@ -117,6 +118,7 @@ void UShowBuilding::PurchaseBuilding()
 
 	DisabePurchaseButton(false);
 
+	//On Purchase hide the widget;
 	SetVisibility(ESlateVisibility::Hidden);
 
 	//if player has enough materials then consume resources

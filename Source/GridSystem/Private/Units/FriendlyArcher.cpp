@@ -16,6 +16,19 @@ void AFriendlyArcher::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AFriendlyArcher::MoveToTarget(AActor* target)
+{
+	Super::MoveToTarget(target);
+	UE_LOG(LogTemp, Warning, TEXT("Archer move"));
+}
+
+void AFriendlyArcher::OnMoveComplete()
+{
+	if (!enemyInfantryTarget) { return; }
+	FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), enemyInfantryTarget->GetActorLocation());
+	SetActorRotation(lookRotation);
+}
+
 void AFriendlyArcher::LaunchArrow()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Launch arrow"));
@@ -23,11 +36,10 @@ void AFriendlyArcher::LaunchArrow()
 
 	if (enemyInfantryTarget && enemyInfantryTarget->IsUnitDead())
 	{
-		//if current target is dead spawn an arrow destroy the previous one
-		FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), overlappingEnemyInfatries[0]->GetActorLocation());
-		SetActorRotation(lookRotation);
+		
 	}
-
+	FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), enemyInfantryTarget->GetActorLocation());
+	SetActorRotation(lookRotation);
 	currentArrow = GetWorld()->SpawnActor<AProjectile>(arrowProjectile, arrowSpawnPoint->GetComponentLocation(), arrowSpawnPoint->GetComponentRotation());
 	currentArrow->SetOwner(this);
 	currentArrow->SetInstigator(this);

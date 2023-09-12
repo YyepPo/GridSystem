@@ -4,6 +4,8 @@
 #include "HUD/ShowBuilding.h"
 
 #include "UnitBase.h"
+#include "NewUnit/NewFriendlyUnit.h"
+#include "NewUnit/UnitComponent.h"
 
 #include "Blueprint/UserWidget.h"
 
@@ -76,21 +78,37 @@ void AMainHud::OnUnitSelection()
 {
 	//Get all actors in SelectionRectangle
 	if (!UnitBaseClass) { return; }
-	GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, selectedActors, false, true);
+	TArray<AActor*> actors;
+	//GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, selectedActors, false, true);
+	GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, actors, false, true);
 	//Loop through all selectedActors
-	for (int i = 0; i < selectedActors.Num(); i++)
+	for (int i = 0; i < actors.Num(); i++)
 	{
 		//Cast each selectedActor to an UnitBase (selectedUnit)
-		AUnitBase* selectedUnit = Cast<AUnitBase>(selectedActors[i]);
-		if (selectedUnit)
+		//AUnitBase* selectedUnit = Cast<AUnitBase>(selectedActors[i]);
+		UUnitComponent* comp = Cast<UUnitComponent>(actors[i]->GetComponentByClass(unitComponentClass));
+		if (comp)
 		{
-			//Add the selected unit to an array of AUnitBase
-			selectedUnits.AddUnique(selectedUnit);
-			//And select that unit (on unit selection a circle is beign draw to inform the player when that unit is selected)
-			selectedUnit->OnUnitSelected(true);
+			unitComponents.AddUnique(comp);
+			comp->SetIsUnitSelected(true);
+			UE_LOG(LogTemp, Warning, TEXT("comp is ava"));
 		}
+
+		for (int32 k = 0; k < unitComponents.Num(); k++)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"),*unitComponents[k]->GetOwner()->GetActorNameOrLabel());
+		}
+		//if (selectedUnit)
+		//{
+		//	//Add the selected unit to an array of AUnitBase
+		//	selectedUnits.AddUnique(selectedUnit);
+		//	//And select that unit (on unit selection a circle is begin draw to inform the player when that unit is selected)
+		//	selectedUnit->OnUnitSelected(true);
+		//}
 	}
+
 }
+
 
 void AMainHud::StartDraw()
 {
@@ -98,12 +116,19 @@ void AMainHud::StartDraw()
 	bIsDrawing = true;
 	GetOwningPlayerController()->GetMousePosition(mouseStartPosition.X, mouseStartPosition.Y);
 
-	selectedActors.Empty();
-	for (int i = 0; i < selectedUnits.Num(); i++)
+	//selectedActors.Empty();
+	//for (int i = 0; i < selectedUnits.Num(); i++)
+	//{
+	//	selectedUnits[i]->OnUnitSelected(false);
+	//}
+	//selectedUnits.Empty();
+
+	if (!unitComponents.Num() == 0) { return; }
+	for (int32 i = 0; i < unitComponents.Num(); i++)
 	{
-		selectedUnits[i]->OnUnitSelected(false);
+		unitComponents[i]->SetIsUnitSelected(false);
 	}
-	selectedUnits.Empty();
+	unitComponents.Empty();
 }
 
 void AMainHud::StopDraw()

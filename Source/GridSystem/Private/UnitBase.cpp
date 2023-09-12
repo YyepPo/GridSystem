@@ -68,6 +68,7 @@ bool AUnitBase::IsAttacking()
 	return unitState == EUnitState::EUS_Attacking;
 }
 
+//completed
 void AUnitBase::OnUnitSelected(bool isSelected)
 {
 	if (!bIsSelectable) 
@@ -95,7 +96,7 @@ void AUnitBase::OnUnitSelected(bool isSelected)
 	bIsSelected = selected;
 	// Set the visibility of the DecalComponent based on the selection status.
 	DecalComponent->SetVisibility(selected);
-}
+} 
 
 void AUnitBase::SetRotationTowardsTarget(AActor* target)
 {
@@ -119,6 +120,7 @@ void AUnitBase::SetUnitToUnOcuppiedState()
 	unitState = EUnitState::EUS_UnOcuppied;
 }
 
+//completed
 void AUnitBase::Move(FVector MovePosition)
 {
 	bHasReachedDestination = false;
@@ -131,7 +133,7 @@ void AUnitBase::Move(FVector MovePosition)
 
 	FAIMoveRequest moveRequest;
 	moveRequest.SetGoalLocation(MovePosition);
-	moveRequest.SetAcceptanceRadius(navigationAcceptableRadius);
+	moveRequest.SetAcceptanceRadius(navigationAcceptableRadius);	
 	enemyAIController->MoveTo(moveRequest);
 }
 
@@ -181,6 +183,11 @@ void AUnitBase::GainResource()
 
 void AUnitBase::OnMoveCompleteDelegateHandler()
 {
+	OnMoveComplete();
+}
+
+void AUnitBase::OnMoveComplete()
+{
 	if (bIsEnemyUnit) { return; }
 
 	//UE_LOG(LogTemp, Warning, TEXT("Unit has reached its destination"));
@@ -192,6 +199,8 @@ void AUnitBase::OnMoveCompleteDelegateHandler()
 	const FVector targetVector = targetPosition - startPos;
 	// Calculate the dot product between the starting position and the target vector.
 	float dotProduct = FVector::DotProduct(startPos, targetVector);
+
+	UE_LOG(LogTemp, Warning, TEXT("Movement has complete"));
 
 	// Check if the dot product is greater than 0, indicating that the target position is in front of the actor.
 	if (dotProduct > 0)

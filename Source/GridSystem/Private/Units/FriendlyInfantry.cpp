@@ -2,6 +2,8 @@
 #include "Units/EnemyInfatry.h"
 #include "Units/InfantryBase.h"
 
+#include "AIController/UnitAIController.h"
+
 #include "HitInterface.h"
 
 #include "Components/SphereComponent.h"
@@ -35,7 +37,11 @@ void AFriendlyInfantry::Tick(float DeltaTime)
 	if (!CanAttack(enemyInfantryTarget))
 	{
 		IsInAttackRange(enemyInfantryTarget) ? navigationAcceptableRadius = attackDistance : navigationAcceptableRadius = 130.f;
-		MoveToTarget(enemyInfantryTarget);
+		if (IsInAttackRange(enemyInfantryTarget))
+		{
+			enemyAIController->ShouldDisableMoveRequest(true);
+		}
+		//MoveToTarget(enemyInfantryTarget);
 	}
 	else
 	{
@@ -48,7 +54,7 @@ void AFriendlyInfantry::MoveToTarget(AActor* target)
 	if (IsInAttackRange(target)) { return; }
 	Super::MoveToTarget(target);
 	navigationAcceptableRadius = attackDistance;
-	enemyInfantryTarget =Cast<AEnemyInfatry>(target);
+	enemyInfantryTarget = Cast<AEnemyInfatry>(target);
 }
 
 //this one

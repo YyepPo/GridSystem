@@ -25,6 +25,7 @@ void UBuildingLevelUpWidget::SetMaxLevel(int32 maxLevel)
 
 void UBuildingLevelUpWidget::SetUpgradeCostTexts(int32 peopleAmount,int32 coinAmount,int32 stoneAmount,int32 woodAmount)
 {
+	//Change the text(people,coin,stone,wood)amount based on given parameter
 	People->SetText(ConvertNumberToText(peopleAmount,"People: "));
 	Coin->SetText(ConvertNumberToText(coinAmount, "Coin: "));
 	Stone->SetText(ConvertNumberToText(stoneAmount, "Stone: "));

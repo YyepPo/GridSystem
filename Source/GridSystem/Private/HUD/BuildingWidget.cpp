@@ -41,7 +41,6 @@ void UBuildingWidget::ButtonClickedEvent()
 			BuildingResources.RequiredWoodAmount,
 			BuildingResources.RequiredStoneAmount,
 			this);
-		UE_LOG(LogTemp, Warning, TEXT("SHOW"));
 	}
 
 }

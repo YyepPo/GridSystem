@@ -112,6 +112,7 @@ protected:
 
 	UFUNCTION()
 		void OnMoveCompleteDelegateHandler();
+	virtual void OnMoveComplete(); //its called in moveCompleteDelegate,child class can override this function
 	UPROPERTY(EditAnywhere,Category = "Rotation")
 		float rotationInterpSpeed;
 	UPROPERTY(EditAnywhere,Category = "Rotation")

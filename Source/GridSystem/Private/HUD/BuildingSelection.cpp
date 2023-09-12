@@ -7,7 +7,6 @@ void UBuildingSelection::NativeConstruct()
 {
 	Super::NativeConstruct();
 	//Building selection widget 
-	//A small inventory
 	if (WrapBox)
 	{
 		WrapBox->AddChild(Slot1);

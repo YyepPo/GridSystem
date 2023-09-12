@@ -30,8 +30,8 @@ void AEnemyInfatry::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Check if this unit is dead
 	if (IsUnitDead()) { return; }
-
 
 	if (IsTowerTargetValid())
 	{
@@ -51,10 +51,8 @@ void AEnemyInfatry::MoveToTarget(AActor* target)
 {
 	Super::MoveToTarget(target);
 	currentFriendlyUnitTarget = currentFriendlyUnitTarget == nullptr ? Cast<AFriendlyInfantry>(currentFriendlyUnitTarget) : currentFriendlyUnitTarget;
-
 }
 
-//this one
 bool AEnemyInfatry::IsTargetValid()
 {
 	//check if tower is still alive, if is not then look for the closest target

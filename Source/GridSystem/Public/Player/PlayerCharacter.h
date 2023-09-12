@@ -27,6 +27,7 @@ protected:
 
 private:
 	void GetTheMainHUD();
+	void SpawnFormationGrid();
 
 	void UpdateCameraLocation();
 	void DedectGrid();

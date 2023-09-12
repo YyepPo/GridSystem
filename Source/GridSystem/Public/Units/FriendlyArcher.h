@@ -18,6 +18,8 @@ public:
 		void LaunchArrow();
 protected:
 	virtual void BeginPlay() override;
+	virtual void MoveToTarget(AActor* target) override;
+	virtual void OnMoveComplete() override;
 private:
 	UPROPERTY(EditAnywhere,Category = "Projectile")
 		TSubclassOf<AProjectile> arrowProjectile;
