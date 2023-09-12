@@ -21,6 +21,8 @@ public:
 		FORCEINLINE float GetHealthPercentage() {return heathPercentage;}
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 		FORCEINLINE float GetCurrentHealthAmount() const {return currentHealth;}
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+		FORCEINLINE bool HasUnitDied() const {return currentHealth == 0;}
 	UFUNCTION()
 		FORCEINLINE bool IsTowerDestroyed() const {return bIsTowerDestroyed;}
 

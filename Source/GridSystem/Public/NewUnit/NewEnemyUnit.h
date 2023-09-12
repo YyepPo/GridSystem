@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,6 +5,8 @@
 #include "NewEnemyUnit.generated.h"
 
 class UUnitComponent;
+class UHealthComponent;
+class USphereComponent;
 
 UCLASS()
 class GRIDSYSTEM_API ANewEnemyUnit : public ACharacter
@@ -15,6 +15,7 @@ class GRIDSYSTEM_API ANewEnemyUnit : public ACharacter
 
 public:
 	ANewEnemyUnit();
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
@@ -30,6 +31,8 @@ private:
 
 	UPROPERTY(EditAnywhere,meta = (AllowPrivateAccess = "true"))
 		UUnitComponent* unitComponent;
+	UPROPERTY(EditAnywhere,meta = (AllowPrivateAccess = "true"))
+		UHealthComponent* healthComponent;
 	UPROPERTY(EditAnywhere,meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* targetDedectCollider;
 

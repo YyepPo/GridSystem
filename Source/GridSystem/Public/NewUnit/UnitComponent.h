@@ -5,6 +5,7 @@
 #include "UnitComponent.generated.h"
 
 class AUnitAIController;
+class UHealthComponent;
 
 UENUM(BlueprintType)
 enum class EUnitsState : uint8
@@ -25,6 +26,7 @@ public:
 	UUnitComponent();
 	void SetNewUnitAIController(AUnitAIController* AIController) { enemyAIController = AIController; }
 	void SetAnimInstance(UAnimInstance* newAnimInstance) { animInstance = newAnimInstance; }
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void NewMove(FVector movePosition);
@@ -35,33 +37,39 @@ public:
 #pragma endregion UnitSelection
 
 #pragma region Combat
-
+	UFUNCTION(BlueprintCallable)
+		void DealDamageToTargetAnimNotify();
+	void UpdateOverlapingTargets(AActor* target);
 	FORCEINLINE void SetCurrentTarget(AActor* newCurrentTarget) { currentTarget = newCurrentTarget; }
 
 #pragma endregion Combat
 
 protected:
 	virtual void BeginPlay() override;
-
 private:
 	void PlayAMontage(UAnimMontage* montage);
 
 #pragma region Combat
-
 	bool IsUnitInAttackRangeOf(AActor* target);
 	bool CanUnitAttack(AActor* target);
+	void AttackBehaviour();
 	void Attack();
 	void AttackRateHandle();
 
 	UPROPERTY(VisibleAnywhere,Category = "Combat")
 		AActor* currentTarget;
+	UPROPERTY(VisibleAnywhere,Category = "Combat")
+		TArray<AActor*> overlapingTargets;
 	UPROPERTY(EditAnywhere,Category = "Combat")
 		UAnimMontage* attackMontage;
 	UPROPERTY(EditAnywhere, Category = "Combat")
 		float attackDistance;
 	UPROPERTY(EditAnywhere, Category = "Combat")
 		float attackRate;
-
+	UPROPERTY(EditAnywhere, Category = "Combat")
+		float attackDamage;
+	UHealthComponent* targetHealthComponent;
+	TSubclassOf<UHealthComponent> healthComponentClass;
 	FTimerHandle attackRateTimerHandle;
 
 #pragma endregion Combat
