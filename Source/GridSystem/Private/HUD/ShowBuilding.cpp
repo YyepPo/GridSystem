@@ -118,8 +118,8 @@ void UShowBuilding::PurchaseBuilding()
 
 	DisabePurchaseButton(false);
 
-	//On Purchase hide the widget;
-	SetVisibility(ESlateVisibility::Hidden);
+	//On Purchase hide the widget(Play out anim from WBP BuildingSelection).This function is a BlueprintImplementableEvent
+	OnBuildingPurchase();
 
 	//if player has enough materials then consume resources
 	ConsumeResources();

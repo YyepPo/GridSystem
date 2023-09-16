@@ -9,6 +9,8 @@
 
 #include "Blueprint/UserWidget.h"
 
+#define PrintToLog(message) UE_LOG(LogTemp,Warning,TEXT(message));
+
 void AMainHud::BeginPlay()
 {
 	Super::BeginPlay();
@@ -34,12 +36,7 @@ void AMainHud::SetUpBuildingSelectioHUD()
 
 void AMainHud::SetUpResourceWidget()
 {
-	//Add the ResourceWidget to viewport if exists
-	//playerController = (playerController == nullptr) ? GetOwningPlayerController() : playerController;
-	//if (!playerController) { return; }
-	//
-	//ResourceWidget = CreateWidget<UResourceWidget>(playerController, ResourceWidgetClass);
-	//if (ResourceWidget) ResourceWidget->AddToViewport();
+
 }
 
 void AMainHud::SetUpShowBuildingWidget()
@@ -76,8 +73,6 @@ void AMainHud::DrawRectangle()
 
 void AMainHud::OnUnitSelection()
 {
-	//Get all actors in SelectionRectangle
-	if (!UnitBaseClass) { return; }
 	TArray<AActor*> actors;
 	//GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, selectedActors, false, true);
 	GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, actors, false, true);
@@ -86,17 +81,12 @@ void AMainHud::OnUnitSelection()
 	{
 		//Cast each selectedActor to an UnitBase (selectedUnit)
 		//AUnitBase* selectedUnit = Cast<AUnitBase>(selectedActors[i]);
+		qweqwe.AddUnique(actors[i]);
 		UUnitComponent* comp = Cast<UUnitComponent>(actors[i]->GetComponentByClass(unitComponentClass));
 		if (comp)
 		{
 			unitComponents.AddUnique(comp);
 			comp->SetIsUnitSelected(true);
-			UE_LOG(LogTemp, Warning, TEXT("comp is ava"));
-		}
-
-		for (int32 k = 0; k < unitComponents.Num(); k++)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"),*unitComponents[k]->GetOwner()->GetActorNameOrLabel());
 		}
 		//if (selectedUnit)
 		//{
@@ -116,17 +106,10 @@ void AMainHud::StartDraw()
 	bIsDrawing = true;
 	GetOwningPlayerController()->GetMousePosition(mouseStartPosition.X, mouseStartPosition.Y);
 
-	//selectedActors.Empty();
-	//for (int i = 0; i < selectedUnits.Num(); i++)
-	//{
-	//	selectedUnits[i]->OnUnitSelected(false);
-	//}
-	//selectedUnits.Empty();
-
-	if (!unitComponents.Num() == 0) { return; }
 	for (int32 i = 0; i < unitComponents.Num(); i++)
 	{
 		unitComponents[i]->SetIsUnitSelected(false);
+		UE_LOG(LogTemp, Warning, TEXT("%d"), unitComponents.Num());
 	}
 	unitComponents.Empty();
 }

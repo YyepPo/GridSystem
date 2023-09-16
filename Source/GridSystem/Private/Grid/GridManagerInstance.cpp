@@ -6,7 +6,7 @@ void UGridManagerInstance::SpawnGrids()
 	//Store the spawn location
 	FVector SpawnLocation = FVector();
 	//Set z axis to 0 so the grid doesn't float
-	SpawnLocation.Z = zOffset;
+	SpawnLocation.Z = zOffset; 
 
 	for (int i = 0; i < Rows; i++)
 	{

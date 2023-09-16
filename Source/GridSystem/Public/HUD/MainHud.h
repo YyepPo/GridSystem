@@ -53,8 +53,7 @@ private:
 
 
 	TArray<AActor*> selectedActors;
-	TArray<AUnitBase*> selectedUnits;
-
+	TArray<AActor*> qweqwe;
 public:
 	UPROPERTY()
 		UBuildingSelection* BuildingHUD;
@@ -63,6 +62,5 @@ public:
 	UPROPERTY()
 		UResourceWidget* ResourceWidget;
 
-	FORCEINLINE TArray<AUnitBase*> GetSelectedUnits() const { return selectedUnits; }
 	FORCEINLINE TArray<UUnitComponent*> GetSelectedUnitComponents() const { return unitComponents; }
 };

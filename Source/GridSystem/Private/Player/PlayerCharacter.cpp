@@ -11,6 +11,7 @@
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+
 #include "Grid/GridRepresentative.h"
 
 #include "BaseBuilding.h"
@@ -173,7 +174,8 @@ void APlayerCharacter::LeftMouseButtonPressed()
 {
 	bIsHoldingLeftMouse = true;
 	//if its holding the leftMouse button then start to draw a rectangle (its about selection the units)
-	if (bIsHoldingLeftMouse && MainHud) MainHud->StartDraw();
+	if (bIsHoldingLeftMouse && MainHud)MainHud->StartDraw();
+
 }
 
 void APlayerCharacter::LeftMouseButtonReleased()
@@ -212,9 +214,7 @@ void APlayerCharacter::UnitBehaviour()
 		UE_LOG(LogTemp, Warning, TEXT("Line trace didnt hit"));
 		return; }
 
-	//if line trace has hit, create an array of AUnitBase based on MainHud's selected unit array
-	TArray<AUnitBase*> selectedUnits = MainHud->GetSelectedUnits();
-
+	//if line trace has hit, create an array of AUnitBase based on MainHud's selected unit array----------
 	TArray<UUnitComponent*> selectedUnitComponents = MainHud->GetSelectedUnitComponents();
 
 	//change formation direction(horizontal formation,or vertical formation)
@@ -225,34 +225,42 @@ void APlayerCharacter::UnitBehaviour()
 		rightOffset += 300.f;
 	}
 
+	//for (int32 i = 0; i < selectedUnitComponents.Num(); i++)
+	//{
+	//	if (!selectedUnitComponents[i]->GetIsUnitSelected()) { 
+	//		UE_LOG(LogTemp, Warning, TEXT("Unit is not selected"));
+	//		return; }
+	//	selectedUnitComponents[i]->NewMove(hitResult.ImpactPoint);
+	//	UE_LOG(LogTemp, Warning, TEXT("mOVE"));
+	//}
+
 	for (int32 i = 0; i < selectedUnitComponents.Num(); i++)
 	{
-		if (!selectedUnitComponents[i]->GetIsUnitSelected()) { 
-			UE_LOG(LogTemp, Warning, TEXT("Unit is not selected"));
-			return; }
-		selectedUnitComponents[i]->NewMove(hitResult.ImpactPoint);
-		UE_LOG(LogTemp, Warning, TEXT("mOVE"));
-	}
+		if (!selectedUnitComponents[i]->GetIsUnitSelected()) { return; }
+		bWasSelected = true;
 
-	//for (int32 i = 0; i < selectedUnits.Num(); i++)
-	//{
-	//	if (!selectedUnits[i]->GetIsSelected()) { return; }
-	//	bWasSelected = true;
-	//
-	//	if (IIsAttackableInterface* attackAbleInterface = Cast<IIsAttackableInterface>(hitResult.GetActor()))
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("%s"), *hitResult.GetActor()->GetActorNameOrLabel());
-	//		selectedUnits[i]->MoveToTargetInterface(hitResult.GetActor());
-	//	}
-	//	else
-	//	{
-	//		if (bWasSelected)
-	//		{
-	//			selectedUnits[i]->Move(horizontalFormationGrids[i]->GetActorLocation());
-	//			UE_LOG(LogTemp, Warning, TEXT("Player move"));
-	//		}
-	//	}
-	//}
+		//selectedUnitComponents[i]->NewMove(hitResult.ImpactPoint);
+		//UE_LOG(LogTemp, Warning, TEXT("mOVE"));
+
+		if (bWasSelected)
+		{
+			selectedUnitComponents[i]->NewMove(horizontalFormationGrids[i]->GetActorLocation());
+			UE_LOG(LogTemp, Warning, TEXT("Player move"));
+		}
+		//if (IIsAttackableInterface* attackAbleInterface = Cast<IIsAttackableInterface>(hitResult.GetActor()))
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("%s"), *hitResult.GetActor()->GetActorNameOrLabel());
+		//	selectedUnits[i]->MoveToTargetInterface(hitResult.GetActor());
+		//}
+		//else
+		//{
+		//	if (bWasSelected)
+		//	{
+		//		selectedUnits[i]->Move(horizontalFormationGrids[i]->GetActorLocation());
+		//		UE_LOG(LogTemp, Warning, TEXT("Player move"));
+		//	}
+		//}
+	}
 }
 
 #pragma endregion InputBindings

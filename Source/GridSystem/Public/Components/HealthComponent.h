@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "NewUnit/UnitStates.h"
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTowerDestroyed);
@@ -21,10 +22,11 @@ public:
 		FORCEINLINE float GetHealthPercentage() {return heathPercentage;}
 	UFUNCTION(BlueprintCallable,BlueprintPure)
 		FORCEINLINE float GetCurrentHealthAmount() const {return currentHealth;}
-	UFUNCTION(BlueprintCallable,BlueprintPure)
-		FORCEINLINE bool HasUnitDied() const {return currentHealth == 0;}
+	bool HasUnitDied() { return bIsUnitDead; }
 	UFUNCTION()
 		FORCEINLINE bool IsTowerDestroyed() const {return bIsTowerDestroyed;}
+	UPROPERTY(VisibleAnywhere)
+		bool bIsUnitDead;
 
 protected:
 	virtual void BeginPlay() override;

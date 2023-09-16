@@ -16,6 +16,9 @@
 
 #include "DrawDebugHelpers.h"
 
+#include "DataAssets/BuildingDataAsset.h"
+
+
 ADefenseTower::ADefenseTower() :
 	enemyDedectionCollider {CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Enemy Dedection Collider"))) },
 	projectileSpawnPoint {CreateDefaultSubobject<USceneComponent>(FName(TEXT("Projectile Spawn Point")))},

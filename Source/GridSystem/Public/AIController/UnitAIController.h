@@ -5,6 +5,7 @@
 #include "UnitAIController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveCompleteMulticastDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveCompletedMulticastDelegate);
 
 UCLASS()
 class GRIDSYSTEM_API AUnitAIController : public AAIController
@@ -19,6 +20,7 @@ public:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	FOnMoveCompleteMulticastDelegate OnMoveCompleteMDelegate;
+	FOnMoveCompletedMulticastDelegate OnMoveCompletedDelegate;
 
 	FORCEINLINE void ShouldDisableMoveRequest(bool newShouldDisableMoveRequest) { bShouldDisableMoveRequest = newShouldDisableMoveRequest; }
 protected:

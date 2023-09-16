@@ -2,10 +2,9 @@
 
 #include "Units/UnitsGridComponent.h"
 #include "UnitBase.h"
-
-#include "Grid/GridRepresentative.h"
-
 #include "Kismet/GameplayStatics.h"
+#include "Grid/GridRepresentative.h"
+#include "DataAssets/BuildingDataAsset.h"
 
 AArcherGenerator::AArcherGenerator() :
 	UnitsGridComponent { CreateDefaultSubobject<UUnitsGridComponent>(FName(TEXT("Units Grid Component"))) },
@@ -22,7 +21,7 @@ void AArcherGenerator::BeginPlay()
 	if (!bIsFriendlyBuilding && UnitsGridComponent)
 	{
 		UnitsGridComponent->SpawnUnitsGrid();
-		GetWorld()->GetTimerManager().SetTimer(BuildingFunctionalityTimerHandle, this, &AArcherGenerator::BuildingFunctionalityTimer, functionTimeRate, true);
+		GetWorld()->GetTimerManager().SetTimer(BuildingFunctionalityTimerHandle, this, &AArcherGenerator::BuildingFunctionalityTimer, loadedBuildingDataAsset->functionTimeRate, true);
 	}
 
 }

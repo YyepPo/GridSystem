@@ -18,7 +18,7 @@ public:
 	void SetCurrentLevelText(int32 currentLevel);
 	void SetNextLevelText(int32 nextLevel);
 	void SetMaxLevel(int32 maxLevel);
-
+	void DisableUpgradeWidget();
 	// Upgrade Texts
 	void SetUpgradeCostTexts(int32 peopleAmount, int32 coinAmount, int32 stoneAmount, int32 woodAmount);
 

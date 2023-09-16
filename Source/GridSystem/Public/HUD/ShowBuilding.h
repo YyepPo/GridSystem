@@ -21,6 +21,8 @@ public:
 	void SetAllWidgets(UTexture2D* NewThumbnail, FString newBuildingName, FString newBuildingDescription, int32 newPrice,int32 newWoodAmount,int32 newStoneAmount,UBuildingWidget* NewBuildingWidget);
 	UFUNCTION(BlueprintCallable)
 		void ChangePurchaseButtonVisibilityBasedOnResources();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnBuildingPurchase();
 
 	UPROPERTY(meta = (BindWidget))
 		UBorder* BackgroundBorder;

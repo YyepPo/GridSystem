@@ -6,12 +6,12 @@
 
 class UWidget;
 class UWidgetComponent;
-class UNiagaraSystem;
 class UBoxComponent;
 class UBuildingsLevelUpComponent;
 class UBuildingLevelUpWidget;
 class APlayerCharacter;
 class UResourceManager;
+class UBuildingDataAsset;
 
 UENUM(BlueprintType)
 enum class EBuildingState : uint8
@@ -38,7 +38,7 @@ struct FBuildingLevelData
 	GENERATED_BODY()
 public:
 	UPROPERTY(VisibleAnywhere)
-		int32 currentLevel = 1;
+		int32 currentLevel = 0;
 	UPROPERTY(EditAnywhere)
 		int32 maxLevel;
 };
@@ -95,16 +95,14 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OccupyNeighbours();
 	FTimerHandle BuildingFunctionalityTimerHandle;
-	UPROPERTY(EditAnywhere)
-		float functionTimeRate;
+	//UPROPERTY(EditAnywhere)
+	//	float functionTimeRate;
 	UPROPERTY(EditAnywhere,Category = "Grid")
 		bool bOccupiesNeighbours;
 	UPROPERTY(EditAnywhere,Category = "Building")
 		TSubclassOf<class UCameraShakeBase> buildingPlacedCameraShake;
-	UPROPERTY(EditAnywhere, Category = "Building")
-		UNiagaraSystem* buildingPlacedVFX;
-	UPROPERTY(EditAnywhere, Category = "Sounds")
-		USoundBase* placedSound;
+	//UPROPERTY(EditAnywhere, Category = "Sounds")
+	//	USoundBase* placedSound;
 
 	/// <summary>
 	/// Level 
@@ -125,8 +123,8 @@ protected:
 		TArray<FUpgradeCost> upgradeCosts;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* StaticMesh;
-	UPROPERTY(EditAnywhere, Category = "Sounds")
-		USoundBase* levelUpSound;
+	//UPROPERTY(EditAnywhere, Category = "Sounds")
+	//	USoundBase* levelUpSound;
 
 	/// <summary>
 	/// Resources
@@ -135,6 +133,12 @@ protected:
 		TSubclassOf<class AResource> resourceClass;
 	UPROPERTY()
 		AResource* resource;
+
+	//Data Asset
+	UPROPERTY(EditAnywhere, Category = "MyData")
+		TSoftObjectPtr<UBuildingDataAsset> buildingDataAsset;
+	UPROPERTY()
+		UBuildingDataAsset* loadedBuildingDataAsset;
 private:
 	UFUNCTION(BlueprintCallable,meta = (AllowPrivateAccess = "true"))
 		void SetResource(AResource* newResource) {resource = newResource;}
@@ -159,6 +163,7 @@ private:
 		UBuildingsLevelUpComponent* BuildingLevelManager;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UWidgetComponent* ResourcePopUpWidget;
+	
 
 public:
 	UFUNCTION(BlueprintCallable)
