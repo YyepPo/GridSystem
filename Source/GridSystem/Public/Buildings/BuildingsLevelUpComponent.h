@@ -4,8 +4,6 @@
 #include "Components/ActorComponent.h"
 #include "BuildingsLevelUpComponent.generated.h"
 
-
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GRIDSYSTEM_API UBuildingsLevelUpComponent : public UActorComponent
 {

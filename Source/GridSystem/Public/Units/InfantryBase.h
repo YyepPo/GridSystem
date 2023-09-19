@@ -15,7 +15,7 @@ enum class EDeathPose : uint8
 
 
 UCLASS()
-class GRIDSYSTEM_API AInfantryBase : public AUnitBase, public IHitInterface
+class GRIDSYSTEM_API AInfantryBase : public AUnitBase
 {
 	GENERATED_BODY()
 	
@@ -26,8 +26,6 @@ public:
 
 	void MoveToTarget(AActor* target) override;
 
-	virtual void OnHit() override;
-	virtual bool OnDeath() override;
 protected:
 	virtual void BeginPlay() override;
 

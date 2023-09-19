@@ -13,7 +13,7 @@ class GRIDSYSTEM_API UGridManagerInstance : public UGameInstance
 	
 public:
 	UFUNCTION()
-		void SpawnGrids();
+		void SpawnGrids() const;
 private:
 		UPROPERTY(EditAnywhere,Category = "Grid")
 		float Rows;

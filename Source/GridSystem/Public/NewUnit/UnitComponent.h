@@ -3,25 +3,32 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "NewUnit/UnitStates.h"
+#include "NewUnit/TypeUnit.h"
+#include "HitInterface.h"
 #include "UnitComponent.generated.h"
 
 class AUnitAIController;
 class UHealthComponent;
 class UDecalComponent;
+class AProjectile;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GRIDSYSTEM_API UUnitComponent : public UActorComponent
+class GRIDSYSTEM_API UUnitComponent : public UActorComponent,public IHitInterface
 {
 	GENERATED_BODY()
 
 public:
 	UUnitComponent();
-	void SetNewUnitAIController(AUnitAIController* AIController) { enemyAIController = AIController; }
-	void SetAnimInstance(UAnimInstance* newAnimInstance) { animInstance = newAnimInstance; }
+
+	FORCEINLINE void SetNewUnitAIController(AUnitAIController* AIController) { enemyAIController = AIController; }
+	FORCEINLINE void SetAnimInstance(UAnimInstance* newAnimInstance) { animInstance = newAnimInstance; }
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void NewMove(FVector movePosition);
+
+	virtual void OnHit(float damageAmount) override;
+	virtual bool OnDeath() override;
 
 #pragma region UnitSelection
 
@@ -37,7 +44,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void DealDamageToTargetAnimNotify();//Used to deal damage in animation notify
-	void UpdateOverlapingTargets(AActor* target);
+	void UpdateOverlapingTargets(AActor* target);//Used in NewFriendlyClass and NewEnemyClass,to update current target 
 	FORCEINLINE void SetCurrentTarget(AActor* newCurrentTarget) { currentTarget = newCurrentTarget; }
 
 #pragma endregion Combat
@@ -53,13 +60,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 private:
-	void PlayAMontage(UAnimMontage* montage);
+	void PlayAMontage(UAnimMontage* montage) const;
 	UFUNCTION()
 		void OnMoveCompleteDelegateHandler();
 
 #pragma region Combat
-	bool IsUnitInAttackRangeOf(AActor* target);
-	bool CanUnitAttack(AActor* target);
+	bool IsUnitInAttackRangeOf(AActor* target) const;
+	bool CanUnitAttack(AActor* target) const;
 	void AttackBehaviour();
 	void Attack();
 	void AttackRateHandle();
@@ -79,7 +86,12 @@ private:
 		float attackDamage;
 	UPROPERTY(EditAnywhere, Category = "Combat")
 		float attackOffset;
-	UHealthComponent* targetHealthComponent;
+	UPROPERTY(EditAnywhere, Category = "Combat|Archer")
+		TSubclassOf<AProjectile> projectileClass;
+	UPROPERTY(EditAnywhere, Category = "Combat|Archer")
+		float projectileDamage;
+	UPROPERTY()
+		UHealthComponent* targetHealthComponent;
 	TSubclassOf<UUnitComponent> unitComponentClass;
 	FTimerHandle attackRateTimerHandle;
 
@@ -99,6 +111,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UnitStates unitState = UnitStates::EUS_Idle;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
+		ETypeUnit unitType = ETypeUnit::ETU_NONE;
 
 #pragma region UnitSelection
 
@@ -116,6 +130,10 @@ private:
 
 	AUnitAIController* enemyAIController;
 	UAnimInstance* animInstance;
-	//units current destination, when movecomplete has finished unit rotates toward destination variable
+	//units current destination, when movecomplete has finished unit rotates towards destination variable
 	FVector destination;
+
+
+	UPROPERTY(EditAnywhere)
+		USceneComponent* projectileSpawnPositionComp;
 };

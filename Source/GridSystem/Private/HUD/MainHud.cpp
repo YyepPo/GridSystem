@@ -23,7 +23,7 @@ void AMainHud::DrawHUD()
 	UnitSelectionBehaviour();
 }
 
-void AMainHud::SetUpBuildingSelectioHUD()
+void AMainHud::SetUpBuildingSelectionHUD()
 {
 	//Add the buildingSelectionWidget to viewport if exists
 	playerController = (playerController == nullptr) ? GetOwningPlayerController() : playerController;
@@ -74,27 +74,17 @@ void AMainHud::DrawRectangle()
 void AMainHud::OnUnitSelection()
 {
 	TArray<AActor*> actors;
-	//GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, selectedActors, false, true);
 	GetActorsInSelectionRectangle(mouseStartPosition, mouseEndPosition, actors, false, true);
 	//Loop through all selectedActors
 	for (int i = 0; i < actors.Num(); i++)
 	{
-		//Cast each selectedActor to an UnitBase (selectedUnit)
-		//AUnitBase* selectedUnit = Cast<AUnitBase>(selectedActors[i]);
-		qweqwe.AddUnique(actors[i]);
+
 		UUnitComponent* comp = Cast<UUnitComponent>(actors[i]->GetComponentByClass(unitComponentClass));
 		if (comp)
 		{
 			unitComponents.AddUnique(comp);
 			comp->SetIsUnitSelected(true);
 		}
-		//if (selectedUnit)
-		//{
-		//	//Add the selected unit to an array of AUnitBase
-		//	selectedUnits.AddUnique(selectedUnit);
-		//	//And select that unit (on unit selection a circle is begin draw to inform the player when that unit is selected)
-		//	selectedUnit->OnUnitSelected(true);
-		//}
 	}
 
 }

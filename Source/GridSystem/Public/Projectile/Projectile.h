@@ -6,7 +6,6 @@
 
 class UProjectileMovementComponent;
 class UBoxComponent;
-class IHitInterface;
 
 UCLASS()
 class GRIDSYSTEM_API AProjectile : public AActor
@@ -29,12 +28,7 @@ private:
 			bool bFromSweep,
 			const FHitResult& SweepResult);
 
-	/// <summary>
-	/// Damage
-	/// </summary>
 	void DealDamage(AActor* damagedActor);
-
-	IHitInterface* hitInterface;
 
 	float damageAmount = 1.f;
 

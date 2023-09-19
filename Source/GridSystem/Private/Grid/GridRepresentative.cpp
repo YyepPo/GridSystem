@@ -50,7 +50,7 @@ void AGridRepresentative::UnOccupyGrid()
 	ChangeMaterialColor(occupiedColor,unOccupiedColor);
 }
 
-void AGridRepresentative::ChangeMaterialColor(FLinearColor newOccupiedColor,FLinearColor newUnoccupiedColor)
+void AGridRepresentative::ChangeMaterialColor(FLinearColor newOccupiedColor,FLinearColor newUnoccupiedColor) const
 {
 	UMaterialInstanceDynamic* materialInstance = StaticMesh->CreateDynamicMaterialInstance(0);
 	if (materialInstance)

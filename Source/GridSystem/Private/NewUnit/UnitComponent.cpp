@@ -2,22 +2,24 @@
 
 #include "Components/DecalComponent.h"
 
-#include "Components/HealthComponent.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "AIController.h"
 #include "AIController/UnitAIController.h"
 
+#include "Projectile/Projectile.h"
+
 #define PrintToLog(message) UE_LOG(LogTemp,Warning,TEXT(message));
 
-UUnitComponent::UUnitComponent()
+UUnitComponent::UUnitComponent() :
+	projectileSpawnPositionComp {CreateDefaultSubobject<USceneComponent>(FName(TEXT("Projectile Spawn Point Comp")))}
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	if(GetOwner() && GetOwner()->GetRootComponent())projectileSpawnPositionComp->SetupAttachment(GetOwner()->GetRootComponent());
 }
 
-void UUnitComponent::PlayAMontage(UAnimMontage* montage)
+void UUnitComponent::PlayAMontage(UAnimMontage* montage) const
 {
 	if (!animInstance || !montage) { return; }
 	animInstance->Montage_Play(montage);
@@ -34,13 +36,6 @@ void UUnitComponent::BeginPlay()
 
 void UUnitComponent::OnMoveCompleteDelegateHandler()
 {
-	//When unit reaches its destination,rotate the unit towards its destination
-	if (!GetOwner()) { return; }
-
-	FRotator lookAtTarget = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), destination);
-	//Update only Rotation.Yaw
-	lookAtTarget.Roll = lookAtTarget.Pitch = 0;
-	GetOwner()->SetActorRotation(lookAtTarget);
 
 }
 
@@ -53,17 +48,17 @@ void UUnitComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 #pragma region Combat
 
-bool UUnitComponent::IsUnitInAttackRangeOf(AActor* target)
+bool UUnitComponent::IsUnitInAttackRangeOf(AActor* target) const
 {
 	if (!target || !GetOwner()) { return false; }
 	//Calculate the distance between target and Owner
-	float distanceBtwTarget = (target->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
+	const float distanceBtwTarget = (target->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
 	//Squaring a distance can be computationally faster than calculating a non-squared distance
-	float squareRootDistance = FMath::Square(distanceBtwTarget);
+	const float squareRootDistance = FMath::Square(distanceBtwTarget);
 	return squareRootDistance <= attackDistance * attackDistance;
 }
 
-bool UUnitComponent::CanUnitAttack(AActor* target)
+bool UUnitComponent::CanUnitAttack(AActor* target) const
 {
 	const bool canAttack = target != nullptr &&
 		IsUnitInAttackRangeOf(target) &&
@@ -81,10 +76,11 @@ void UUnitComponent::AttackBehaviour()
 	if(CanUnitAttack(currentTarget))
 	{
 		Attack();
+		enemyAIController->ShouldDisableMoveRequest(true);
 	}
 	else
 	{
-		NewMove(currentTarget->GetActorLocation() + currentTarget->GetActorForwardVector() * attackOffset);
+		NewMove(currentTarget->GetActorLocation());
 	}
 }
 
@@ -104,15 +100,28 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 {
 	if (!currentTarget) { return; }
 
-	//Deal damage to current target
-	UGameplayStatics::ApplyDamage(currentTarget,
-		attackDamage,
-		GetOwner()->GetInstigatorController(),
-		GetOwner(),
-		UDamageType::StaticClass());
+	if (unitType == ETypeUnit::ETU_NormalInfantry || unitType == ETypeUnit::ETU_Cavalry)
+	{
+		//Deal damage to current target
+		UGameplayStatics::ApplyDamage(currentTarget,
+			attackDamage,
+			GetOwner()->GetInstigatorController(),
+			GetOwner(),
+			UDamageType::StaticClass());
+
+	}
+	else if (unitType == ETypeUnit::ETU_Archer)
+	{
+		if (AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, projectileSpawnPositionComp->GetComponentLocation(), projectileSpawnPositionComp->GetComponentRotation()))
+		{
+			spawnedProjectile->SetOwner(GetOwner());
+			spawnedProjectile->SetInstigator(Cast<APawn>(GetOwner()));
+			spawnedProjectile->SetProjectileDamage(projectileDamage);
+		}
+	}
 
 	//If target is dead,set the currentTarget to nullptr, so the unit doesn't keep attacking the dead target
-	UUnitComponent* targetsUnitComponent = Cast<UUnitComponent>(currentTarget->GetComponentByClass(unitComponentClass));
+	const UUnitComponent* targetsUnitComponent = Cast<UUnitComponent>(currentTarget->GetComponentByClass(unitComponentClass));
 	if (targetsUnitComponent && targetsUnitComponent->GetUnitDead())
 	{
 		overlapingTargets.Remove(currentTarget);
@@ -121,23 +130,42 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 
 		CheckForClosestTarget();
 	}
-
 }
 
 void UUnitComponent::OnUnitHit(float damage)
 {
-	PlayAMontage(hitMontage);
-	healthAmount -= damage;
 	if (healthAmount <= 0)
 	{
 		bDeadUnit = true;
 		OnUnitDeath();
+		return;
 	}
+	PlayAMontage(hitMontage);
+	healthAmount -= damage;
 }
 
 void UUnitComponent::OnUnitDeath()
 {
 	unitState = UnitStates::EUS_Dead;
+}
+
+void UUnitComponent::OnHit(float damageAmount)
+{
+	if (OnDeath()) {return;}
+
+	PlayAMontage(hitMontage);
+	healthAmount -= damageAmount;
+}
+
+bool UUnitComponent::OnDeath()
+{
+	if (healthAmount <= 0)
+	{
+		bDeadUnit = true;
+		OnUnitDeath();
+		return true;
+	}
+	return false;
 }
 
 void UUnitComponent::CheckForClosestTarget()
@@ -179,10 +207,17 @@ void UUnitComponent::NewMove(FVector movePosition)
 		UE_LOG(LogTemp, Warning, TEXT("There is not ai controller for new units"));
 		return;
 	}
+
 	//Move to the ai to given position
 	FAIMoveRequest moveRequest;
-	moveRequest.SetGoalLocation(movePosition);
 	moveRequest.SetAcceptanceRadius(40.f);
+	if (unitState == UnitStates::EUS_Attacking) 
+	{ 
+		moveRequest.SetGoalLocation(GetOwner()->GetActorLocation());
+		enemyAIController->MoveTo(moveRequest);
+		return; 
+	}
+	moveRequest.SetGoalLocation(movePosition);
 	enemyAIController->MoveTo(moveRequest);
 	destination = moveRequest.GetDestination();
 }

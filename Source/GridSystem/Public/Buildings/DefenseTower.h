@@ -45,7 +45,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	virtual void OnHit() override;
+	virtual void OnHit(float damageAmount) override;
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTowerHit();
 	UFUNCTION(BlueprintImplementableEvent)
@@ -53,7 +53,7 @@ protected:
 	virtual bool OnDeath() override;
 
 	virtual void OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) override;
-	virtual void LevelupFunctionality() override;
+	virtual void LevelUpFunctionality() override;
 
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetHealthBarWidget(UHealthBarWidget* newHealthBarWidget) {healthBarWidget = newHealthBarWidget;}

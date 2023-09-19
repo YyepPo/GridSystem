@@ -7,8 +7,6 @@
 
 #include "Kismet/GameplayStatics.h"
 
-#include "DrawDebugHelpers.h"
-
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -20,14 +18,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "HUD/MainHud.h"
-#include "HUD/ShowBuilding.h"
 
-#include "Resource/ResourceBase.h"
-
-#include "Units/EnemyInfatry.h"
-#include "Units/IsAttackableInterface.h"
-
-#include "NewUnit/NewFriendlyUnit.h"
 #include "NewUnit/UnitComponent.h"
 
 APlayerCharacter::APlayerCharacter() :
@@ -40,7 +31,7 @@ APlayerCharacter::APlayerCharacter() :
 	InitializeComponents();
 }
 
-void APlayerCharacter::InitializeComponents()
+void APlayerCharacter::InitializeComponents() const
 {
 	//Create the spring arm component
 	SpringArm->SetupAttachment(GetRootComponent());
@@ -115,8 +106,6 @@ void APlayerCharacter::UpdateCameraLocation()
 	int32 viewportSizeY;
 	GridPlayerController->GetViewportSize(viewportSizeX, viewportSizeY);
 
-	const float CameraMoveSpeed = 2.0f;
-	
 	if (mousePosition.Y > viewportSizeY - cameraEdgeOffset) AddActorLocalOffset(FVector(-cameraMoveSpeed, 0,0 ));
 	else if (mousePosition.Y < cameraEdgeOffset) AddActorLocalOffset(FVector(cameraMoveSpeed, 0, 0));
 
@@ -151,8 +140,7 @@ void APlayerCharacter::AttachBuildingToGrid()
 	if (bIsOneOfTheNeighboursOccupied) { return; }
 
 	// Check if current grid does exists and is not occupied
-	const bool bIsGridNotOccupied = currentGrid && !currentGrid->IsOccupied();
-	if (bIsGridNotOccupied)
+	if (const bool bIsGridNotOccupied = currentGrid && !currentGrid->IsOccupied())
 	{
 		//spawn the building class at grid location and with grid rotation
 		ABaseBuilding* placedBuilding = GetWorld()->SpawnActor<ABaseBuilding>(currentBuilding->GetClassRepresentative(), currentGrid->GetActorLocation(), currentBuilding->GetActorRotation());
@@ -225,41 +213,16 @@ void APlayerCharacter::UnitBehaviour()
 		rightOffset += 300.f;
 	}
 
-	//for (int32 i = 0; i < selectedUnitComponents.Num(); i++)
-	//{
-	//	if (!selectedUnitComponents[i]->GetIsUnitSelected()) { 
-	//		UE_LOG(LogTemp, Warning, TEXT("Unit is not selected"));
-	//		return; }
-	//	selectedUnitComponents[i]->NewMove(hitResult.ImpactPoint);
-	//	UE_LOG(LogTemp, Warning, TEXT("mOVE"));
-	//}
-
 	for (int32 i = 0; i < selectedUnitComponents.Num(); i++)
 	{
 		if (!selectedUnitComponents[i]->GetIsUnitSelected()) { return; }
 		bWasSelected = true;
-
-		//selectedUnitComponents[i]->NewMove(hitResult.ImpactPoint);
-		//UE_LOG(LogTemp, Warning, TEXT("mOVE"));
 
 		if (bWasSelected)
 		{
 			selectedUnitComponents[i]->NewMove(horizontalFormationGrids[i]->GetActorLocation());
 			UE_LOG(LogTemp, Warning, TEXT("Player move"));
 		}
-		//if (IIsAttackableInterface* attackAbleInterface = Cast<IIsAttackableInterface>(hitResult.GetActor()))
-		//{
-		//	UE_LOG(LogTemp, Warning, TEXT("%s"), *hitResult.GetActor()->GetActorNameOrLabel());
-		//	selectedUnits[i]->MoveToTargetInterface(hitResult.GetActor());
-		//}
-		//else
-		//{
-		//	if (bWasSelected)
-		//	{
-		//		selectedUnits[i]->Move(horizontalFormationGrids[i]->GetActorLocation());
-		//		UE_LOG(LogTemp, Warning, TEXT("Player move"));
-		//	}
-		//}
 	}
 }
 
@@ -269,9 +232,9 @@ void APlayerCharacter::DedectGrid()
 {
 	if (!currentBuilding) { return; }
 
-	FHitResult HitResult;
 	if (GetWorld())
 	{
+		FHitResult HitResult;
 		//Get mouse position
 		FVector worldLocation;
 		FVector worldDirection;

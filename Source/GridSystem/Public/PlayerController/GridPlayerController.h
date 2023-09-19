@@ -15,8 +15,10 @@ protected:
 public:
 	UPROPERTY(BlueprintReadWrite)
 		class AMainHud* HUD;
-	class UShowBuilding* ShowBuildingReference;
-	class UResourceWidget* ResourceWidgetReference;
+	UPROPERTY()
+		class UShowBuilding* ShowBuildingReference;
+	UPROPERTY()
+		class UResourceWidget* ResourceWidgetReference;
 	UPROPERTY(BlueprintReadWrite)
 		class UBuildingSelection* BuildingSelectionWidgetReference;
 

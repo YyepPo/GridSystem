@@ -35,7 +35,7 @@ float ANewEnemyUnit::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	}
 
 	unitComponent->OnUnitHit(DamageAmount);
-	if (healthComponent->bIsUnitDead)
+	if (healthComponent->bIsDead)
 	{
 		unitComponent->OnUnitDeath();
 	}

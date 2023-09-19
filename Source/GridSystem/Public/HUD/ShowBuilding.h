@@ -17,7 +17,7 @@ class GRIDSYSTEM_API UShowBuilding : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void EnableShowBuildingWidgets(bool bIsVisible);
+	void EnableShowBuildingWidgets(bool bIsVisible) const;
 	void SetAllWidgets(UTexture2D* NewThumbnail, FString newBuildingName, FString newBuildingDescription, int32 newPrice,int32 newWoodAmount,int32 newStoneAmount,UBuildingWidget* NewBuildingWidget);
 	UFUNCTION(BlueprintCallable)
 		void ChangePurchaseButtonVisibilityBasedOnResources();
@@ -69,18 +69,19 @@ private:
 		void BuyButtonEvent();
 
 	bool CanPurchase();
-	void DisabePurchaseButton(bool bIsDisabled);
+	void DisablePurchaseButton(bool bIsDisabled) const;
 	void PurchaseBuilding();
-	void ConsumeResources();
+	void ConsumeResources() const;
 
-	class APlayerCharacter* PlayerCharacter;
+	UPROPERTY()
+		class APlayerCharacter* PlayerCharacter;
 
 	UPROPERTY(EditAnywhere,Category = "Resources")
 		TSubclassOf<class AResource> resourceClass;
 	UPROPERTY()
 		AResource* resource;
-
-	UBuildingWidget* BuildingWidget;
+	UPROPERTY()
+		UBuildingWidget* BuildingWidget;
 
 	//when a uwidget component is disabled
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))

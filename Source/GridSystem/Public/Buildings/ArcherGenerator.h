@@ -23,7 +23,7 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 	virtual void BuildingFunctionalityTimer() override;
-	virtual void LevelupFunctionality() override;
+	virtual void LevelUpFunctionality() override;
 	virtual void OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) override;
 
 private:

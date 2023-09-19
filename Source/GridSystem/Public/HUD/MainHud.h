@@ -17,7 +17,7 @@ public:
 
 	virtual void DrawHUD() override;
 
-	void SetUpBuildingSelectioHUD();
+	void SetUpBuildingSelectionHUD();
 	void SetUpResourceWidget();
 	void SetUpShowBuildingWidget();
 
@@ -31,7 +31,8 @@ private:
 	void DrawRectangle();
 	void OnUnitSelection();
 
-	APlayerController* playerController;
+	UPROPERTY()
+		APlayerController* playerController;
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UBuildingSelection> BuildingHUDClass;
@@ -49,11 +50,11 @@ private:
 		TSubclassOf<class AUnitBase> UnitBaseClass;
 	UPROPERTY(EditAnywhere, Category = "Rectangle")
 		TSubclassOf<class UUnitComponent> unitComponentClass;
+
+	UPROPERTY()
 	TArray<UUnitComponent*> unitComponents;
-
-
-	TArray<AActor*> selectedActors;
-	TArray<AActor*> qweqwe;
+	UPROPERTY()
+		TArray<AActor*> selectedActors;
 public:
 	UPROPERTY()
 		UBuildingSelection* BuildingHUD;

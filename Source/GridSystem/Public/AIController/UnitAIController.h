@@ -23,6 +23,7 @@ public:
 	FOnMoveCompletedMulticastDelegate OnMoveCompletedDelegate;
 
 	FORCEINLINE void ShouldDisableMoveRequest(bool newShouldDisableMoveRequest) { bShouldDisableMoveRequest = newShouldDisableMoveRequest; }
+	FORCEINLINE bool GetIsMovementDisabled() const { return bShouldDisableMoveRequest; }
 protected:
 	virtual void OnPossess(class APawn* InPawn) override;
 private:

@@ -19,9 +19,9 @@ void AWoodGeneratorBuilding::BuildingFunctionalityTimer()
 	resource->AddWood(resourceAmount);
 }
 
-void AWoodGeneratorBuilding::LevelupFunctionality()
+void AWoodGeneratorBuilding::LevelUpFunctionality()
 {
-	Super::LevelupFunctionality();
+	Super::LevelUpFunctionality();
 	LevelBasedResourceGain();
 }
 

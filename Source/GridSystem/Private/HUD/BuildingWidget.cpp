@@ -7,8 +7,6 @@
 
 #include "KISMET/Gameplaystatics.h"
 
-#include "BaseBuilding.h"
-
 #include "Components/Image.h"
 #include "Components/Button.h"
 

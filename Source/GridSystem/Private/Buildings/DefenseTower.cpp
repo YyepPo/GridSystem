@@ -14,11 +14,6 @@
 
 #include "Kismet/KismetMathLibrary.h"
 
-#include "DrawDebugHelpers.h"
-
-#include "DataAssets/BuildingDataAsset.h"
-
-
 ADefenseTower::ADefenseTower() :
 	enemyDedectionCollider {CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Enemy Dedection Collider"))) },
 	projectileSpawnPoint {CreateDefaultSubobject<USceneComponent>(FName(TEXT("Projectile Spawn Point")))},
@@ -66,7 +61,7 @@ float ADefenseTower::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	return DamageAmount;
 }
 
-void ADefenseTower::OnHit()
+void ADefenseTower::OnHit(float damageAmount)
 {
 	OnTowerHit();
 }
@@ -84,8 +79,7 @@ bool ADefenseTower::OnDeath()
 		const FVector endPos = startPos + GetActorUpVector() * 50.f;
 		FCollisionQueryParams param;
 		param.AddIgnoredActor(this);
-		const bool hasHit = GetWorld()->LineTraceSingleByChannel(hitResult, startPos, endPos, ECC_Visibility, param);
-		if (hasHit)
+		if (const bool hasHit = GetWorld()->LineTraceSingleByChannel(hitResult, startPos, endPos, ECC_Visibility, param))
 		{
 			AGridRepresentative* occupiedGrid = Cast<AGridRepresentative>(hitResult.GetActor());
 			if (occupiedGrid) occupiedGrid->UnOccupyGrid();
@@ -110,8 +104,7 @@ void ADefenseTower::StartToAttack()
 	const FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(spawnPoint, closestEnemy->GetActorLocation());
 	if (projectileClass)
 	{
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, spawnPoint, lookAtRotation);
-		if (projectile)
+		if (AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, spawnPoint, lookAtRotation))
 		{
 			projectile->SetOwner(this);
 			projectile->SetProjectileDamage(projectileDamage);
@@ -153,9 +146,9 @@ void ADefenseTower::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, 
 	GEngine->AddOnScreenDebugMessage(0, 2.f, FColor::Red, FString::Printf(TEXT("Defense Tower object is beign clicked")));
 }
 
-void ADefenseTower::LevelupFunctionality()
+void ADefenseTower::LevelUpFunctionality()
 {
-	Super::LevelupFunctionality();
+	Super::LevelUpFunctionality();
 	if (upgradeData.Num() == 0) { return; }
 
 	//On Level up upgrade static mesh and the projectile damage amount

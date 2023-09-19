@@ -11,10 +11,10 @@ class GRIDSYSTEM_API UResourceWidget : public UUserWidget
 	
 public:
 
-	void UpdatePeopleAmountText(int32 newPoepleAmount);
-	void UpdateCoinAmountText(int32 newCoinAmount);
-	void UpdateWoodAmountText(int32 newWoodAmount);
-	void UpdateStoneAmountText(int32 newStoneAmount);
+	void UpdatePeopleAmountText(int32 newPeopleAmount) const;
+	void UpdateCoinAmountText(int32 newCoinAmount) const;
+	void UpdateWoodAmountText(int32 newWoodAmount) const;
+	void UpdateStoneAmountText(int32 newStoneAmount) const;
 
 	UPROPERTY(meta = (BindWidget))
 		class UBorder* BackgroundBorder;

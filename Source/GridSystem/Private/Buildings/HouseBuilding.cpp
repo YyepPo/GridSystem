@@ -1,6 +1,5 @@
 #include "Buildings/HouseBuilding.h"
 
-#include "Player/PlayerCharacter.h"
 #include "Resource/Resource.h"
 void AHouseBuilding::BuildingFunctionality()
 {
@@ -14,8 +13,8 @@ void AHouseBuilding::BuildingFunctionalityTimer()
 	if (resource) resource->AddPeople(resourceAmount);
 }
 
-void AHouseBuilding::LevelupFunctionality()
+void AHouseBuilding::LevelUpFunctionality()
 {
-	Super::LevelupFunctionality();
+	Super::LevelUpFunctionality();
 	LevelBasedResourceGain();
 }

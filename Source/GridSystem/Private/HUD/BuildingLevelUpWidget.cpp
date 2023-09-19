@@ -44,7 +44,7 @@ FText UBuildingLevelUpWidget::ConvertNumberToText(int32 number,FString word)
 	return text;
 }
 
-void UBuildingLevelUpWidget::DisableUpgradeWidget()
+void UBuildingLevelUpWidget::DisableUpgradeWidget() const
 {
 	UpgradeCostBackgroundImage->SetVisibility(ESlateVisibility::Hidden);
 	UpgradeVerticalBox->SetVisibility(ESlateVisibility::Hidden);

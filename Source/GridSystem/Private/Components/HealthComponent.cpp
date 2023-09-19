@@ -1,4 +1,5 @@
 #include "Components/HealthComponent.h"
+
 UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -9,6 +10,7 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 	currentHealth = maxHealth;
 	heathPercentage = currentHealth / maxHealth;
+	UE_LOG(LogTemp, Warning, TEXT("damaged"));
 }
 
 void UHealthComponent::TakeDamage(float damageAmount)
@@ -18,7 +20,7 @@ void UHealthComponent::TakeDamage(float damageAmount)
 	heathPercentage = currentHealth / maxHealth;
 	if (currentHealth == 0)
 	{
-		bIsUnitDead = true;
+		bIsDead = true;
 		OnTowerDestroyedDelegate.Broadcast();
 	}
 }

@@ -29,15 +29,16 @@ void AUnitAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//if (bShouldDisableMoveRequest)
-	//{
-	//	FAIRequestID requestID;
-	//	requestID.InvalidRequest;
-	//	FPathFollowingResult folow(FPathFollowingResultFlags::MovementStop);
-	//	if (folow.HasFlag(FPathFollowingResultFlags::MovementStop))
-	//		UE_LOG(LogTemp, Warning, TEXT("AA"));
-	//	OnMoveCompleted(requestID,folow);
-	//}
+	if (bShouldDisableMoveRequest)
+	{
+		FAIRequestID requestID;
+		requestID.InvalidRequest;
+		FPathFollowingResult folow(FPathFollowingResultFlags::MovementStop);
+		if (folow.HasFlag(FPathFollowingResultFlags::MovementStop))
+		{
+			OnMoveCompleted(requestID,folow);
+		}
+	}
 }
 
 void AUnitAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)

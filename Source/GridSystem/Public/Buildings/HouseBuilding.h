@@ -12,5 +12,5 @@ public:
 	virtual void BuildingFunctionality();
 protected:
 	virtual void BuildingFunctionalityTimer() override;
-	virtual void LevelupFunctionality() override;
+	virtual void LevelUpFunctionality() override;
 };

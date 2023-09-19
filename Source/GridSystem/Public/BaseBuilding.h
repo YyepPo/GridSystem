@@ -77,8 +77,10 @@ protected:
 	UFUNCTION()
 		virtual void OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
 
-	APlayerCharacter* PlayerCharacter;
-	UResourceManager* PlayerResourceManager;
+	UPROPERTY()
+		APlayerCharacter* PlayerCharacter;
+	UPROPERTY()
+		UResourceManager* PlayerResourceManager;
 
 	void LevelBasedResourceGain();
 	UFUNCTION(BlueprintImplementableEvent)
@@ -95,26 +97,22 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OccupyNeighbours();
 	FTimerHandle BuildingFunctionalityTimerHandle;
-	//UPROPERTY(EditAnywhere)
-	//	float functionTimeRate;
 	UPROPERTY(EditAnywhere,Category = "Grid")
 		bool bOccupiesNeighbours;
 	UPROPERTY(EditAnywhere,Category = "Building")
 		TSubclassOf<class UCameraShakeBase> buildingPlacedCameraShake;
-	//UPROPERTY(EditAnywhere, Category = "Sounds")
-	//	USoundBase* placedSound;
 
 	/// <summary>
 	/// Level 
 	/// </summary>
 	UFUNCTION()
 		void TickButtonClicked();
-	virtual void LevelupFunctionality();
+	virtual void LevelUpFunctionality();
 	bool HasPlayerEnoughResourcesToLevelUpBuilding();
 	bool HasEnoughResource(int32 index);
 	void ConsumeMaterials(int32 index);
-	bool HasReachedMaxLevel();
-	void SetUpLevelWidgetTexts(int32 currentLevel);
+	bool HasReachedMaxLevel() const;
+	void SetUpLevelWidgetTexts(int32 currentLevel) const;
 	void SetUpUpgradeCostText();
 
 	UPROPERTY(EditAnywhere,Category = "Level")
@@ -123,8 +121,6 @@ protected:
 		TArray<FUpgradeCost> upgradeCosts;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* StaticMesh;
-	//UPROPERTY(EditAnywhere, Category = "Sounds")
-	//	USoundBase* levelUpSound;
 
 	/// <summary>
 	/// Resources

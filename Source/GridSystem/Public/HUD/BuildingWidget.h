@@ -57,8 +57,9 @@ protected:
 		TSubclassOf<class UShowBuilding> ShowBuildingWidgetClass;
 	UPROPERTY()
 		UShowBuilding* ShowBuilding;
-	
-	class AGridPlayerController* PlayerController;
-	class UShowBuilding* ShowBuildingWidget;
+
+	UPROPERTY()
+		class AGridPlayerController* PlayerController;
+	UPROPERTY()
 	class UBuildingSelection* BuildingSelection;
 };

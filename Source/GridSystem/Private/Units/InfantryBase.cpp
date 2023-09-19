@@ -72,23 +72,6 @@ float AInfantryBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	return DamageAmount;
 }
 
-void AInfantryBase::OnHit()
-{
-	if (currentHealthAmount <= 0)
-	{
-		isDead = true;
-		//Destroy();
-		return;
-	}
-	PlayAMontage(hitMontage);
-}
-
-bool AInfantryBase::OnDeath()
-{
-	if (currentHealthAmount <= 0) { return true; }
-	return false;
-}
-
 void AInfantryBase::OnAttackDealDamageAnimNotify()
 {
 	OnAttackDealDamage();                                             
@@ -101,24 +84,24 @@ void AInfantryBase::OnAttackDealDamage()
 
 void AInfantryBase::DamageBehaviour(AActor* target)
 {
-	if (target)
-	{
-		UGameplayStatics::ApplyDamage(target,
-			attackDamage,
-			GetController(),
-			this,
-			UDamageType::StaticClass());
-
-		IHitInterface* hit = Cast<IHitInterface>(target);
-		if (hit)
-		{
-			hit->OnHit();
-			if (hit->OnDeath())
-			{
-				target = nullptr;
-			}
-		}
-	}
+	//if (target)
+	//{
+	//	UGameplayStatics::ApplyDamage(target,
+	//		attackDamage,
+	//		GetController(),
+	//		this,
+	//		UDamageType::StaticClass());
+	//
+	//	IHitInterface* hit = Cast<IHitInterface>(target);
+	//	if (hit)
+	//	{
+	//		hit->OnHit();
+	//		if (hit->OnDeath())
+	//		{
+	//			target = nullptr;
+	//		}
+	//	}
+	//}
 }
 
 bool AInfantryBase::IsTargetDead(IHitInterface* hitInterface)

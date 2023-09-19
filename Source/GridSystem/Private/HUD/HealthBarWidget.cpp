@@ -2,7 +2,7 @@
 
 #include "Components/ProgressBar.h"
 
-void UHealthBarWidget::UpdateHealthBarPercentage(float healthPercentage)
+void UHealthBarWidget::UpdateHealthBarPercentage(float healthPercentage) const
 {
 	if (healthBar) healthBar->SetPercent(healthPercentage);
 }

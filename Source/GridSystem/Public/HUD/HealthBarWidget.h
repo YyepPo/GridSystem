@@ -12,7 +12,7 @@ class GRIDSYSTEM_API UHealthBarWidget : public UUserWidget
 
 public:	
 	UFUNCTION(BlueprintCallable)
-		void UpdateHealthBarPercentage(float healthPercentage);
+		void UpdateHealthBarPercentage(float healthPercentage) const;
 
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* healthBar;

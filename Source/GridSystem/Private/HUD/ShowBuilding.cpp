@@ -22,7 +22,7 @@ void UShowBuilding::NativeConstruct()
 	BuyButton->OnClicked.AddDynamic(this, &UShowBuilding::BuyButtonEvent);
 }
 
-void UShowBuilding::EnableShowBuildingWidgets(bool bIsVisible)
+void UShowBuilding::EnableShowBuildingWidgets(bool bIsVisible) const
 {
 	//Change the widgets visibility
 	ESlateVisibility visibility;
@@ -45,13 +45,13 @@ void UShowBuilding::SetAllWidgets(UTexture2D* NewThumbnail, FString newBuildingN
 	BuildingName->SetText(FText::FromString(newBuildingName));
 	BuildingDescription->SetText(FText::FromString(newBuildingDescription));
 
-	FString priceText = FString::FromInt(newPrice);
+	const FString priceText = FString::FromInt(newPrice);
 	BuildingPrice->SetText(FText::FromString(priceText));
 
-	FString woodPriceText = FString::FromInt(newWoodAmount);
+	const FString woodPriceText = FString::FromInt(newWoodAmount);
 	WoodPrice->SetText(FText::FromString(woodPriceText));
 
-	FString stonePriceText = FString::FromInt(newStoneAmount);
+	const FString stonePriceText = FString::FromInt(newStoneAmount);
 	StonePrice->SetText(FText::FromString(stonePriceText));
 
 	BuildingWidget = NewBuildingWidget;
@@ -84,14 +84,14 @@ bool UShowBuilding::CanPurchase()
 	{
 		GEngine->AddOnScreenDebugMessage(0, 2.f, FColor::Red, FString::Printf(TEXT("You dont have enough coin")));
 		//If player doesn't have the required materials then inform the player by changing purchase button's opacity
-		DisabePurchaseButton(true);
+		DisablePurchaseButton(true);
 		return false;
 	}
 
 	return true;
 }
 
-void UShowBuilding::DisabePurchaseButton(bool bIsDisabled)
+void UShowBuilding::DisablePurchaseButton(bool bIsDisabled) const
 {
 	//Change the purchase button's opacity;
 	FLinearColor textColor = BuyText->ColorAndOpacity.GetSpecifiedColor();
@@ -110,13 +110,13 @@ void UShowBuilding::PurchaseBuilding()
 	//check if there are enough resource to purchase a building
 	if (coinAmount <= 0 || woodAmount <= 0 || stoneAmount <= 0)
 	{
-		DisabePurchaseButton(true);
+		DisablePurchaseButton(true);
 
 		GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Blue, FString::Printf(TEXT("Not enough resources")));
 		return;
 	}
 
-	DisabePurchaseButton(false);
+	DisablePurchaseButton(false);
 
 	//On Purchase hide the widget(Play out anim from WBP BuildingSelection).This function is a BlueprintImplementableEvent
 	OnBuildingPurchase();
@@ -129,7 +129,7 @@ void UShowBuilding::PurchaseBuilding()
 	if (purchaseSound) UGameplayStatics::PlaySound2D(this,purchaseSound);
 }
 
-void UShowBuilding::ConsumeResources()
+void UShowBuilding::ConsumeResources() const
 {
 	//Consume all the necessary resources
 	resource->RemoveCoin(BuildingWidget->BuildingResources.BuildingPrice);
@@ -139,5 +139,5 @@ void UShowBuilding::ConsumeResources()
 
 void UShowBuilding::ChangePurchaseButtonVisibilityBasedOnResources()
 {
-	CanPurchase() ? DisabePurchaseButton(true) : DisabePurchaseButton(false);
+	CanPurchase() ? DisablePurchaseButton(true) : DisablePurchaseButton(false);
 }

@@ -1,7 +1,7 @@
 #include "Grid/GridManagerInstance.h"
 #include "Grid/GridRepresentative.h"
 
-void UGridManagerInstance::SpawnGrids()
+void UGridManagerInstance::SpawnGrids() const
 {
 	//Store the spawn location
 	FVector SpawnLocation = FVector();

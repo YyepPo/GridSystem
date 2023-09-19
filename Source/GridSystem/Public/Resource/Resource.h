@@ -41,7 +41,7 @@ public:
 	void AddStone(int stoneAmount);
 	void RemoveStone(int stoneAmount);
 
-	FORCEINLINE int32 GetPoepleAmount() const { return resources.currentPeopleAmount; }
+	FORCEINLINE int32 GetPeopleAmount() const { return resources.currentPeopleAmount; }
 	FORCEINLINE int32 GetCoinAmount() const { return resources.currentCoinAmount; }
 	FORCEINLINE int32 GetWoodAmount() const { return resources.currentWoodAmount; }
 	FORCEINLINE int32 GetStoneAmount() const { return resources.currentStoneAmount; }
@@ -52,7 +52,8 @@ protected:
 private:	
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UResourceWidget> resourceWidgetClass;
-	UResourceWidget* resourceWidget;
+	UPROPERTY()
+		UResourceWidget* resourceWidget;
 
 	UPROPERTY(EditAnywhere)
 		FResources resources;

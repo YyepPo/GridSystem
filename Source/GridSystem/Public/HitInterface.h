@@ -21,7 +21,7 @@ class GRIDSYSTEM_API IHitInterface
 	GENERATED_BODY()
 public:
 	UFUNCTION()
-		virtual void OnHit() = 0;
+		virtual void OnHit(float damageAmount) = 0;
 	UFUNCTION()
 		virtual bool OnDeath() = 0;
 

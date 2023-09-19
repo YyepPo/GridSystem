@@ -20,8 +20,8 @@ void AStoneGenerator::BuildingFunctionalityTimer()
 	if (resource) resource->AddStone(resourceAmount);
 }
 
-void AStoneGenerator::LevelupFunctionality()
+void AStoneGenerator::LevelUpFunctionality()
 {
-	Super::LevelupFunctionality();
+	Super::LevelUpFunctionality();
 	LevelBasedResourceGain();
 }

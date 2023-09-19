@@ -7,8 +7,8 @@
 #include "DataAssets/BuildingDataAsset.h"
 
 AArcherGenerator::AArcherGenerator() :
-	UnitsGridComponent { CreateDefaultSubobject<UUnitsGridComponent>(FName(TEXT("Units Grid Component"))) },
-	UnitsGridLocation{ CreateDefaultSubobject<USceneComponent>(FName(TEXT("Units Grid Location"))) }
+	UnitsGridLocation{ CreateDefaultSubobject<USceneComponent>(FName(TEXT("Units Grid Location"))) },
+	UnitsGridComponent { CreateDefaultSubobject<UUnitsGridComponent>(FName(TEXT("Units Grid Component"))) }
 {
 	UnitsGridLocation->SetupAttachment(GetRootComponent());
 	UnitsGridComponent->SetComponentOwner(this);
@@ -86,9 +86,9 @@ void AArcherGenerator::BuildingFunctionalityTimer()
 	}
 }
 
-void AArcherGenerator::LevelupFunctionality()
+void AArcherGenerator::LevelUpFunctionality()
 {
-	Super::LevelupFunctionality();
+	Super::LevelUpFunctionality();
 
 	//on leveling up the building upgrade unitType to a stronger unitType
 	switch (buildingLevelData.currentLevel)

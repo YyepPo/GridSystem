@@ -51,7 +51,7 @@ private:
 #pragma region MainComponents
 
 	//Components
-	void InitializeComponents();
+	void InitializeComponents() const;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* SpringArm;

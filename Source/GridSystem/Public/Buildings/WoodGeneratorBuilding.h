@@ -13,5 +13,5 @@ public:
 protected:
 	virtual void BuildingFunctionalityTimer() override;
 	virtual void OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) override;
-	virtual void LevelupFunctionality() override;
+	virtual void LevelUpFunctionality() override;
 };

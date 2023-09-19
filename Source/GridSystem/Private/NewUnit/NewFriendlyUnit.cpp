@@ -41,8 +41,8 @@ float ANewFriendlyUnit::TakeDamage(float DamageAmount, const FDamageEvent& Damag
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (DamageAmount == 0 || !unitComponent) return 0;
-	unitComponent->OnUnitHit(DamageAmount);
-
+	//unitComponent->OnUnitHit(DamageAmount);	
+	unitComponent->OnHit(DamageAmount);
 	return DamageAmount;
 }
 

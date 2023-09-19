@@ -2,26 +2,16 @@
 
 #include "Buildings/BuildingsLevelUpComponent.h"
 
-#include "DrawDebugHelpers.h"
-
 #include "Player/PlayerCharacter.h"
 #include "Resource/Resource.h"
 
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "PlayerController/GridPlayerController.h"
-
-#include "HUD/ShowBuilding.h"
-
-#include "Grid/GridRepresentative.h"
-
 #include "Components/Widget.h"
 #include "Components/Button.h"
 #include "Components/WidgetComponent.h"
 #include "HUD/BuildingLevelUpWidget.h"
-
-#include "Camera/CameraShakeBase.h"
 
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
@@ -113,12 +103,12 @@ void ABaseBuilding::TickButtonClicked()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%d"), loadedBuildingDataAsset->buildingLevelData.currentLevel);
 
-	LevelupFunctionality();
+	LevelUpFunctionality();
 	if(HasReachedMaxLevel()) BuildingLevelUpWidget->DisableUpgradeWidget();
 
 }
 
-void ABaseBuilding::LevelupFunctionality()
+void ABaseBuilding::LevelUpFunctionality()
 {
 	SetUpLevelWidgetTexts(buildingLevelData.currentLevel);
 	if (HasReachedMaxLevel()) { return; }
@@ -162,7 +152,7 @@ bool ABaseBuilding::HasPlayerEnoughResourcesToLevelUpBuilding()
 
 bool ABaseBuilding::HasEnoughResource(int32 index)
 {
-	const bool bHasEnoughPoeple = resource->GetPoepleAmount() > upgradeCosts[index].peopleAmount;///////////////////////////////
+	const bool bHasEnoughPoeple = resource->GetPeopleAmount() > upgradeCosts[index].peopleAmount;///////////////////////////////
 	const bool bHasEnoughCoin = resource->GetCoinAmount() >upgradeCosts[index].coinAmount;	  ///////////////////////////////
 	const bool bHasEnoughStone = resource->GetStoneAmount() > upgradeCosts[index].stoneAmount;	  ///////////////////////////////
 	const bool bHasEnoughWood = resource->GetWoodAmount() > upgradeCosts[index].woodAmount;	  ///////////////////////////////
@@ -192,7 +182,7 @@ void ABaseBuilding::LevelBasedResourceGain()
 	}
 }
 
-bool ABaseBuilding::HasReachedMaxLevel()
+bool ABaseBuilding::HasReachedMaxLevel() const
 {
 	if (!BuildingLevelUpWidget) { return false; }
 
@@ -205,7 +195,7 @@ bool ABaseBuilding::HasReachedMaxLevel()
 	return false;
 }
 
-void ABaseBuilding::SetUpLevelWidgetTexts(int32 currentLevel)
+void ABaseBuilding::SetUpLevelWidgetTexts(int32 currentLevel) const
 {
 	if (!BuildingLevelUpWidget) {return;}
 	BuildingLevelUpWidget->SetCurrentLevelText(currentLevel);

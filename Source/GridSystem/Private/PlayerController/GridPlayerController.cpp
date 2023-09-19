@@ -10,7 +10,7 @@ void AGridPlayerController::BeginPlay()
 	if (!HUD) { return; }
 
 	//Add the necessary widgets to viewport
-	HUD->SetUpBuildingSelectioHUD();
+	HUD->SetUpBuildingSelectionHUD();
 	
 	//A reference to all widgets so the playerCharacter class can use it
 	ShowBuildingReference = HUD->BuildingHUD->ShowSelectedBuildingWidgetClass;
