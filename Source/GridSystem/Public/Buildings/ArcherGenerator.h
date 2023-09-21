@@ -5,6 +5,7 @@
 #include "ArcherGenerator.generated.h"
 
 class AUnitBase;
+class ANewFriendlyUnit;
 class UUnitsGridComponent;
 
 UCLASS()
@@ -35,12 +36,12 @@ private:
 		bool bIsFriendlyBuilding = true;
 
 	UPROPERTY(EditAnywhere, Category = "Units")
-		TSubclassOf<AUnitBase> UnitToBeSpawned;
-	UPROPERTY(EditAnywhere, Category = "Units")
+		TSubclassOf<ANewFriendlyUnit> UnitToBeSpawned;
+	UPROPERTY(VisibleAnywhere, Category = "Units")
 		int32 spawnedUnitCounter; 
 	UPROPERTY(VisibleAnywhere, Category = "Units")
-		TArray<AUnitBase*> spawnedUnits;
+		TArray<ANewFriendlyUnit*> spawnedUnits;
 	UPROPERTY(EditAnywhere, Category = "Units")
-		TSubclassOf<AUnitBase> UnitToBeSpawnedLevel2;
+		TSubclassOf<ANewFriendlyUnit> UnitToBeSpawnedLevel2;
 
 };

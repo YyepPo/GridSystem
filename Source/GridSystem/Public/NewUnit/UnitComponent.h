@@ -50,11 +50,12 @@ public:
 #pragma endregion Combat
 
 #pragma region Health
-
-	FORCEINLINE bool GetUnitDead() const { return bDeadUnit; }
+		
 	void OnUnitHit(float damage);
 	void OnUnitDeath();
 
+	FORCEINLINE float GetUnitHealthAmount() const { return healthAmount; }
+	FORCEINLINE bool GetUnitDead() const { return bDeadUnit; }
 #pragma endregion Health
 
 protected:

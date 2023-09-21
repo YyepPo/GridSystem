@@ -19,6 +19,7 @@ public:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE UUnitComponent* GetUnitsUnitComponent() const { return unitComponent; }
 protected:
 	virtual void BeginPlay() override;
 
@@ -39,5 +40,6 @@ private:
 		USphereComponent* targetDedectCollider;
 	UPROPERTY(EditAnywhere, Category = "Decal")
 		UDecalComponent* selectionDecalComponent;
+
 #pragma endregion Components
 };

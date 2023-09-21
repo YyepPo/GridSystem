@@ -34,7 +34,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 		class UButton* Button;
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 		class UImage* Thumbnail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

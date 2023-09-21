@@ -10,7 +10,10 @@
 
 #include "Projectile/Projectile.h"
 
+#include "HitInterface.h"
+
 #define PrintToLog(message) UE_LOG(LogTemp,Warning,TEXT(message));
+#define PrintToScreen(message) 	GEngine->AddOnScreenDebugMessage(3, 2.f, FColor::Red, message);
 
 UUnitComponent::UUnitComponent() :
 	projectileSpawnPositionComp {CreateDefaultSubobject<USceneComponent>(FName(TEXT("Projectile Spawn Point Comp")))}
@@ -75,11 +78,13 @@ void UUnitComponent::AttackBehaviour()
 
 	if(CanUnitAttack(currentTarget))
 	{
+		PrintToScreen(FString::Printf(TEXT("Unit can attack mother building")));
 		Attack();
 		enemyAIController->ShouldDisableMoveRequest(true);
 	}
 	else
 	{
+		PrintToScreen(FString::Printf(TEXT("Unit CANNOT attack mother building")));
 		NewMove(currentTarget->GetActorLocation());
 	}
 }
@@ -98,10 +103,27 @@ void UUnitComponent::AttackRateHandle()
 
 void UUnitComponent::DealDamageToTargetAnimNotify()
 {
-	if (!currentTarget) { return; }
+	if (!currentTarget)
+	{
+		PrintToLog("Current target is not valid in DealDamageToTargetAnimNotify")
+		return;
+	}
 
 	if (unitType == ETypeUnit::ETU_NormalInfantry || unitType == ETypeUnit::ETU_Cavalry)
 	{
+		IHitInterface* hitInterface = Cast<IHitInterface>(currentTarget);
+		if(hitInterface)
+		{
+			hitInterface->OnHit(attackDamage);
+			if(hitInterface->OnDeath())
+			{
+				overlapingTargets.Remove(currentTarget);
+				currentTarget = nullptr;
+				return;
+				
+			}
+			
+		}
 		//Deal damage to current target
 		UGameplayStatics::ApplyDamage(currentTarget,
 			attackDamage,
@@ -109,10 +131,12 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 			GetOwner(),
 			UDamageType::StaticClass());
 
+
 	}
-	else if (unitType == ETypeUnit::ETU_Archer)
+	else if (unitType == ETypeUnit::ETU_Archer && projectileClass && projectileSpawnPositionComp)
 	{
-		if (AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, projectileSpawnPositionComp->GetComponentLocation(), projectileSpawnPositionComp->GetComponentRotation()))
+		AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, projectileSpawnPositionComp->GetComponentLocation(), projectileSpawnPositionComp->GetComponentRotation());
+		if (spawnedProjectile)
 		{
 			spawnedProjectile->SetOwner(GetOwner());
 			spawnedProjectile->SetInstigator(Cast<APawn>(GetOwner()));
@@ -147,6 +171,7 @@ void UUnitComponent::OnUnitHit(float damage)
 void UUnitComponent::OnUnitDeath()
 {
 	unitState = UnitStates::EUS_Dead;
+	PrintToLog("Unit is dead");
 }
 
 void UUnitComponent::OnHit(float damageAmount)
@@ -176,12 +201,12 @@ void UUnitComponent::CheckForClosestTarget()
 		float minDistance = 9999.f;
 		for (int32 i = 0; i < overlapingTargets.Num(); i++)
 		{
-			float distance = (overlapingTargets[i]->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
+			const float distance = (overlapingTargets[i]->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
 			if (distance < minDistance)
 			{
 				minDistance = distance;
 				currentTarget = overlapingTargets[i];
-				FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), currentTarget->GetActorLocation());
+				const FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), currentTarget->GetActorLocation());
 				GetOwner()->SetActorRotation(lookRotation);
 			}
 		}

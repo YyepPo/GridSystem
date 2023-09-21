@@ -14,7 +14,7 @@ class GRIDSYSTEM_API AProjectile : public AActor
 	
 public:	
 	AProjectile();
-
+	 
 	FORCEINLINE void SetProjectileDamage(float damage) { damageAmount = damage; }
 protected:
 	virtual void BeginPlay() override;

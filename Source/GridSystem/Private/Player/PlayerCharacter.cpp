@@ -21,6 +21,8 @@
 
 #include "NewUnit/UnitComponent.h"
 
+
+
 APlayerCharacter::APlayerCharacter() :
 	SpringArm{ CreateDefaultSubobject<USpringArmComponent>(FName(TEXT("Spring Arm"))) },
 	Camera{ CreateDefaultSubobject<UCameraComponent>(FName(TEXT("Camera"))) }
@@ -132,6 +134,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::AttachBuildingToGrid()
 {
+	
+
 	//If inventory is open and there is not current building(not building selected) then building cannot be attached to grid
 	if (!currentBuilding) { return; }
 	if (bIsInventoryOpen ) { return; }

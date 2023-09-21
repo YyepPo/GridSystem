@@ -35,9 +35,9 @@ float ANewEnemyUnit::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 	}
 
 	unitComponent->OnUnitHit(DamageAmount);
-	if (healthComponent->bIsDead)
+	if(unitComponent->OnDeath())
 	{
-		unitComponent->OnUnitDeath();
+		OnUnitDeathDelegate.Broadcast();
 	}
 
 	return DamageAmount;

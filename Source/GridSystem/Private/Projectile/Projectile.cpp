@@ -24,6 +24,8 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor == GetOwner()) { return;; }
+
 	IHitInterface* hitInterface = Cast<IHitInterface>(OtherActor);
 	if (hitInterface) hitInterface->OnHit(damageAmount);
 

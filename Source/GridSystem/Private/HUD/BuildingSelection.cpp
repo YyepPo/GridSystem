@@ -7,12 +7,4 @@ void UBuildingSelection::NativeConstruct()
 {
 	Super::NativeConstruct();
 	//Building selection widget 
-	if (WrapBox)
-	{
-		WrapBox->AddChild(Slot1);
-		WrapBox->AddChild(Slot2);
-		WrapBox->AddChild(Slot3);
-		WrapBox->AddChild(Slot4);
-		WrapBox->AddChild(Slot5);
-	}
 }

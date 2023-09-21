@@ -1,7 +1,8 @@
 #include "Buildings/ArcherGenerator.h"
 
 #include "Units/UnitsGridComponent.h"
-#include "UnitBase.h"
+#include "NewUnit/NewFriendlyUnit.h"
+#include "NewUnit/UnitComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Grid/GridRepresentative.h"
 #include "DataAssets/BuildingDataAsset.h"
@@ -42,6 +43,7 @@ void AArcherGenerator::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponen
 void AArcherGenerator::BuildingFunctionality()
 {
 	Super::BuildingFunctionality();
+
 	//spawn units overtime
 	if (UnitsGridComponent) UnitsGridComponent->SpawnUnitsGrid();
 }
@@ -57,7 +59,7 @@ void AArcherGenerator::BuildingFunctionalityTimer()
 		APawn* playerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
 		for (int32 i = 0; i < spawnedUnits.Num(); i++)
 		{
-			if (playerPawn) spawnedUnits[i]->MoveToTargetInterface(playerPawn);
+			if (playerPawn) spawnedUnits[i]->GetUnitsUnitComponent()->NewMove(playerPawn->GetActorLocation());
 		}
 		//clear the FTimerHandle, so this function its called once  after all units are spawned 
 		GetWorld()->GetTimerManager().ClearTimer(BuildingFunctionalityTimerHandle);
@@ -67,7 +69,7 @@ void AArcherGenerator::BuildingFunctionalityTimer()
 	if (GetWorld() && UnitToBeSpawned)
 	{
 		const FVector spawnLocation = GetActorLocation() + GetActorUpVector() * 100.f + GetActorForwardVector() * -150.f;
-		AUnitBase* spawnedUnit = GetWorld()->SpawnActor<AUnitBase>(UnitToBeSpawned, spawnLocation, GetActorRotation());
+		ANewFriendlyUnit* spawnedUnit = GetWorld()->SpawnActor<ANewFriendlyUnit>(UnitToBeSpawned, spawnLocation, GetActorRotation());
 		if (spawnedUnit && UnitsGridComponent)
 		{
 			spawnedUnits.AddUnique(spawnedUnit);
@@ -76,9 +78,12 @@ void AArcherGenerator::BuildingFunctionalityTimer()
 				//check if grid at index i is not occupied,if its not then move the unit to that grid
 				if (!UnitsGridComponent->grids[i]->IsOccupied())
 				{
-					spawnedUnit->Move(UnitsGridComponent->grids[i]->GetActorLocation());
-					UnitsGridComponent->grids[i]->OccupyGrid();
-					++spawnedUnitCounter;
+					if(spawnedUnit && spawnedUnit->GetUnitsUnitComponent())
+					{
+						spawnedUnit->GetUnitsUnitComponent()->NewMove(UnitsGridComponent->grids[i]->GetActorLocation());
+						UnitsGridComponent->grids[i]->OccupyGrid();
+						++spawnedUnitCounter;
+					}
 					break;
 				}
 			}

@@ -8,6 +8,8 @@ class UUnitComponent;
 class UHealthComponent;
 class USphereComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUnitDeathDelegate);
+
 UCLASS()
 class GRIDSYSTEM_API ANewEnemyUnit : public ACharacter
 {
@@ -15,13 +17,17 @@ class GRIDSYSTEM_API ANewEnemyUnit : public ACharacter
 
 public:
 	ANewEnemyUnit();
+
+	FOnUnitDeathDelegate OnUnitDeathDelegate;
+
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-private:	
+private:
+
 #pragma region Components
 
 	UFUNCTION()
@@ -37,4 +43,5 @@ private:
 		class USphereComponent* targetDedectCollider;
 
 #pragma endregion Components
+
 };

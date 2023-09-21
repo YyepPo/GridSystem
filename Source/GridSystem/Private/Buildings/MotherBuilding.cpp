@@ -1,10 +1,13 @@
 #include "Buildings/MotherBuilding.h"
 
 #include "Components/HealthComponent.h"
+#include "NewUnit/UnitComponent.h"
+
 #include "HUD/HealthBarWidget.h"
 
 AMotherBuilding::AMotherBuilding() :
-	healthComponent {CreateDefaultSubobject<UHealthComponent>(FName(TEXT("Health Component")))}
+	healthComponent {CreateDefaultSubobject<UHealthComponent>(FName(TEXT("Health Component")))},
+	unitComponent {CreateDefaultSubobject<UUnitComponent>(FName(TEXT("Unit Component")))}
 {
 
 }
@@ -18,14 +21,17 @@ float AMotherBuilding::TakeDamage(float DamageAmount, const FDamageEvent& Damage
 
 void AMotherBuilding::OnHit(float damageAmount)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Warning Mother base is being attacked"));
+
 }
 
 bool AMotherBuilding::OnDeath()
 {
 	if (healthComponent->HasDied())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Mother base has been destroyed"));
+		//play a camera shake
+
+		//destroy object
+		OnMotherBuildingDestroyedSignature.Broadcast();
 		return true;
 	}
 	return false;

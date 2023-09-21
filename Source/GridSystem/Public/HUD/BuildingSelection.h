@@ -20,7 +20,9 @@ public:
 		class UImage* BackGround;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-		class UWrapBox* WrapBox;
+		class UVerticalBox* VerticalBoxBuildings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UScrollBox* BuildingWidgetScroll;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UBuildingWidget* Slot1;

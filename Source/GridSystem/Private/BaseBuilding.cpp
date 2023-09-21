@@ -245,8 +245,7 @@ void ABaseBuilding::BuildingFunctionality()
 
 	if (GetOccupiesNeighbours()) OccupyNeighbours();
 
-	if (!loadedBuildingDataAsset) { return; }
-	GetWorldTimerManager().SetTimer(BuildingFunctionalityTimerHandle,this,&ABaseBuilding::BuildingFunctionalityTimer, loadedBuildingDataAsset->functionTimeRate,true);
+	GetWorldTimerManager().SetTimer(BuildingFunctionalityTimerHandle,this,&ABaseBuilding::BuildingFunctionalityTimer,functionTimeRate,true);
 }
 
 void ABaseBuilding::BuildingFunctionalityTimer()

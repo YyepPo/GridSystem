@@ -101,7 +101,8 @@ protected:
 		bool bOccupiesNeighbours;
 	UPROPERTY(EditAnywhere,Category = "Building")
 		TSubclassOf<class UCameraShakeBase> buildingPlacedCameraShake;
-
+	UPROPERTY(EditAnywhere, Category = "Building")
+		float functionTimeRate;
 	/// <summary>
 	/// Level 
 	/// </summary>
