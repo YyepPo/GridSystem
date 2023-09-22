@@ -6,7 +6,7 @@
 
 class ABaseBuilding;
 class AGridRepresentative;
-
+class AObjectPooling;
 UCLASS()
 class GRIDSYSTEM_API APlayerCharacter : public ACharacter
 {
@@ -19,13 +19,17 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void SelectBuilding(TSubclassOf<ABaseBuilding> NewBuilding);
-
+	
+	UFUNCTION(BlueprintCallable)
+		void SetObjectPoolingActor(AObjectPooling* newPoolingActor) { objectPoolingActor = newPoolingActor; }
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		class UResourceManager* ResourceManager;// Resource Manager Component
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	AObjectPooling* objectPoolingActor;
+
 	void GetTheMainHUD();
 	void SpawnFormationGrid();
 
@@ -43,6 +47,7 @@ private:
 
 	void AttachBuildingToGrid();
 
+	void SpawnProjectile();
 	//void ShowWidget();
 
 	void UnitBehaviour();

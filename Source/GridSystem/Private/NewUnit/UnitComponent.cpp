@@ -12,6 +12,8 @@
 
 #include "HitInterface.h"
 
+#include "ObjectPooling/ObjectPooling.h"
+
 #define PrintToLog(message) UE_LOG(LogTemp,Warning,TEXT(message));
 #define PrintToScreen(message) 	GEngine->AddOnScreenDebugMessage(3, 2.f, FColor::Red, message);
 
@@ -135,12 +137,23 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 	}
 	else if (unitType == ETypeUnit::ETU_Archer && projectileClass && projectileSpawnPositionComp)
 	{
-		AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, projectileSpawnPositionComp->GetComponentLocation(), projectileSpawnPositionComp->GetComponentRotation());
-		if (spawnedProjectile)
+		//AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, projectileSpawnPositionComp->GetComponentLocation(), projectileSpawnPositionComp->GetComponentRotation());
+		//if (spawnedProjectile)
+		//{
+		//	spawnedProjectile->SetOwner(GetOwner());
+		//	spawnedProjectile->SetInstigator(Cast<APawn>(GetOwner()));
+		//	spawnedProjectile->SetProjectileDamage(projectileDamage);
+		//}
+		if(!objectPooling)
 		{
-			spawnedProjectile->SetOwner(GetOwner());
-			spawnedProjectile->SetInstigator(Cast<APawn>(GetOwner()));
-			spawnedProjectile->SetProjectileDamage(projectileDamage);
+			PrintToLog("There is no object pooling actor");
+			return;
+		}
+
+		if(GetOwner())
+		{
+			PrintToLog("Get arrow from pool");
+			objectPooling->GetPooledProjectile(GetOwner());
 		}
 	}
 

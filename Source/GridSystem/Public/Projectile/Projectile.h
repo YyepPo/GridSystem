@@ -6,6 +6,7 @@
 
 class UProjectileMovementComponent;
 class UBoxComponent;
+class AObjectPooling;
 
 UCLASS()
 class GRIDSYSTEM_API AProjectile : public AActor
@@ -14,12 +15,27 @@ class GRIDSYSTEM_API AProjectile : public AActor
 	
 public:	
 	AProjectile();
-	 
+
+	void Activate();
+	void Deactivate();
+
+	UFUNCTION(BlueprintCallable)
+		void SetObjectPoolingActor(AObjectPooling* newPoolingActor) { objectPoolingActor = newPoolingActor; }
+
+	bool bIsActive = false;
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnActivate();
 	FORCEINLINE void SetProjectileDamage(float damage) { damageAmount = damage; }
 protected:
 	virtual void BeginPlay() override;
 	
 private:
+	FTimerHandle timerHandle;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"));
+	AObjectPooling* objectPoolingActor;
+	void Return();
+
+
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor,

@@ -1,8 +1,10 @@
 #include "Projectile/Projectile.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "HitInterface.h"
+#include "ObjectPooling/ObjectPooling.h"
 
 AProjectile::AProjectile() :
 	staticMesh {CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh"))},
@@ -15,10 +17,40 @@ AProjectile::AProjectile() :
 	staticMesh->SetupAttachment(GetRootComponent());
 }
 
+void AProjectile::Activate()
+{
+	bIsActive = true;
+	projectileMovementComp->bSimulationEnabled = true;
+	projectileMovementComp->InitialSpeed = 800;
+	projectileMovementComp->MaxSpeed = 800;
+
+	OnActivate();
+
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+
+	if (GetOwner()) SetActorLocation(GetOwner()->GetActorLocation());
+
+}
+
+void AProjectile::Deactivate()
+{
+	bIsActive = false;
+	projectileMovementComp->bSimulationEnabled = false;
+
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+
+	if (GetOwner()) SetActorLocation(GetOwner()->GetActorLocation());
+
+	SetOwner(nullptr);
+	SetInstigator(nullptr);
+}
+
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &AProjectile::Return, 5.f);
 	boxCollider->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnBoxBeginOverlap);
 }
 
@@ -30,7 +62,12 @@ void AProjectile::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	if (hitInterface) hitInterface->OnHit(damageAmount);
 
 	DealDamage(OtherActor);
-	Destroy();
+
+	if (objectPoolingActor)
+	{
+		objectPoolingActor->ReturnPooledObject(this);
+	}
+	
 }
 
 void AProjectile::DealDamage(AActor* damagedActor)

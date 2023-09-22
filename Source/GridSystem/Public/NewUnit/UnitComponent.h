@@ -11,6 +11,7 @@ class AUnitAIController;
 class UHealthComponent;
 class UDecalComponent;
 class AProjectile;
+class AObjectPooling;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GRIDSYSTEM_API UUnitComponent : public UActorComponent,public IHitInterface
@@ -19,10 +20,11 @@ class GRIDSYSTEM_API UUnitComponent : public UActorComponent,public IHitInterfac
 
 public:
 	UUnitComponent();
-
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void SetObjectPool(AObjectPooling* newPoolObject) { objectPooling = newPoolObject; }
 	FORCEINLINE void SetNewUnitAIController(AUnitAIController* AIController) { enemyAIController = AIController; }
 	FORCEINLINE void SetAnimInstance(UAnimInstance* newAnimInstance) { animInstance = newAnimInstance; }
-
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void NewMove(FVector movePosition);
@@ -56,6 +58,7 @@ public:
 
 	FORCEINLINE float GetUnitHealthAmount() const { return healthAmount; }
 	FORCEINLINE bool GetUnitDead() const { return bDeadUnit; }
+
 #pragma endregion Health
 
 protected:
@@ -66,6 +69,7 @@ private:
 		void OnMoveCompleteDelegateHandler();
 
 #pragma region Combat
+
 	bool IsUnitInAttackRangeOf(AActor* target) const;
 	bool CanUnitAttack(AActor* target) const;
 	void AttackBehaviour();
@@ -96,6 +100,8 @@ private:
 	TSubclassOf<UUnitComponent> unitComponentClass;
 	FTimerHandle attackRateTimerHandle;
 
+	UPROPERTY()
+		AObjectPooling* objectPooling;
 #pragma endregion Combat
 
 #pragma region Health
@@ -126,14 +132,17 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		bool bIsUnitSelected;
 
-	UMaterialInstanceDynamic* dynamicMaterialInstance;
+	UPROPERTY()
+		UMaterialInstanceDynamic* dynamicMaterialInstance;
+
 #pragma endregion UnitSelection
 
-	AUnitAIController* enemyAIController;
-	UAnimInstance* animInstance;
+	UPROPERTY()
+		AUnitAIController* enemyAIController;
+	UPROPERTY()
+		UAnimInstance* animInstance;
 	//units current destination, when movecomplete has finished unit rotates towards destination variable
 	FVector destination;
-
 
 	UPROPERTY(EditAnywhere)
 		USceneComponent* projectileSpawnPositionComp;

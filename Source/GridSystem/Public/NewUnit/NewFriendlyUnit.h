@@ -32,7 +32,7 @@ private:
 	UFUNCTION()
 		void TargetOverlapEnd(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(EditAnywhere,meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UUnitComponent* unitComponent;
 	UPROPERTY(EditAnywhere,meta = (AllowPrivateAccess = "true"))
 		UHealthComponent* healthComponent;

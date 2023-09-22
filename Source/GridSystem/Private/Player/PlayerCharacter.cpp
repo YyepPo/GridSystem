@@ -20,7 +20,7 @@
 #include "HUD/MainHud.h"
 
 #include "NewUnit/UnitComponent.h"
-
+#include "ObjectPooling/ObjectPooling.h"
 
 
 APlayerCharacter::APlayerCharacter() :
@@ -129,7 +129,19 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(FName("SelectUnits"), EInputEvent::IE_Released, this, &APlayerCharacter::LeftMouseButtonReleased);
 
 	PlayerInputComponent->BindAction(FName("UnitBehaviour"), EInputEvent::IE_Pressed, this, &APlayerCharacter::UnitBehaviour);
-	
+
+	PlayerInputComponent->BindAction(FName("Attack"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SpawnProjectile);
+}
+
+void APlayerCharacter::SpawnProjectile()
+{
+	if(!objectPoolingActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There is no object pooling actor"));
+		return;
+	}
+
+	//objectPoolingActor->GetPooledProjectile();
 }
 
 void APlayerCharacter::AttachBuildingToGrid()
