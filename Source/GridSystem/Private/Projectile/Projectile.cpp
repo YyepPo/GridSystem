@@ -50,10 +50,9 @@ void AProjectile::Deactivate()
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &AProjectile::Return, 5.f);
 	boxCollider->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnBoxBeginOverlap);
 }
-
+ 
 void AProjectile::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetOwner()) { return;; }
@@ -67,7 +66,6 @@ void AProjectile::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		objectPoolingActor->ReturnPooledObject(this);
 	}
-	
 }
 
 void AProjectile::DealDamage(AActor* damagedActor)

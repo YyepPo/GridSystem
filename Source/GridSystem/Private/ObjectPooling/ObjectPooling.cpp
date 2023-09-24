@@ -32,6 +32,7 @@ AProjectile* AObjectPooling::GetPooledProjectile(AActor* newOwner)
 			return projectile;
 		}
 	}
+	UE_LOG(LogTemp, Warning, TEXT("No available object in the pool"));
 	return nullptr;
 }
 

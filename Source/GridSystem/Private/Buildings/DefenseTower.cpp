@@ -14,6 +14,9 @@
 
 #include "Kismet/KismetMathLibrary.h"
 
+#include "NewUnit/UnitComponent.h"
+#include "ObjectPooling/ObjectPooling.h"
+
 ADefenseTower::ADefenseTower() :
 	enemyDedectionCollider {CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Enemy Dedection Collider"))) },
 	projectileSpawnPoint {CreateDefaultSubobject<USceneComponent>(FName(TEXT("Projectile Spawn Point")))},
@@ -102,13 +105,19 @@ void ADefenseTower::StartToAttack()
 	//Spawn a projectile in direction to the enemy
 	const FVector spawnPoint = projectileSpawnPoint->GetComponentLocation();
 	const FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(spawnPoint, closestEnemy->GetActorLocation());
-	if (projectileClass)
+	//if (projectileClass)
+	//{
+	//	if (AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, spawnPoint, lookAtRotation))
+	//	{
+	//		projectile->SetOwner(this);
+	//		projectile->SetProjectileDamage(projectileDamage);
+	//	}
+	//}
+
+	if(objectPool)
 	{
-		if (AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, spawnPoint, lookAtRotation))
-		{
-			projectile->SetOwner(this);
-			projectile->SetProjectileDamage(projectileDamage);
-		}
+		directionToTarget = closestEnemy->GetActorLocation() - projectileSpawnPoint->GetComponentLocation();
+		objectPool->GetPooledProjectile(this);
 	}
 
 	//set tower state to attacking so the tower doesn't attack multiple times
@@ -125,17 +134,20 @@ void ADefenseTower::BackToUnocuppiedState()
 
 	//set tower state to unoccupied so the tower can start attacking again
 	towerState = ETowerState::ETS_Unoccupied;
-
-	if (closestEnemy->IsUnitDead())
+	if (closestEnemy)
 	{
-		//when unit is dead remove from the array and set it null so the tower doesn't keep attacking the dead unit
-		overlapingEnemies.Remove(closestEnemy);
-		closestEnemy = nullptr;
-		for (int32 i = 0; i < overlapingEnemies.Num(); i++)
-		{	
-			//Set the closest enemy to be equal to the first index of overlapingEnemies;
-			closestEnemy = overlapingEnemies[i];
-			break;
+		UUnitComponent* closestEnemyUnitComp = Cast<UUnitComponent>(closestEnemy->GetComponentByClass(unitComponentClass));
+		if(closestEnemyUnitComp && closestEnemyUnitComp->OnDeath())
+		{
+			//when unit is dead remove from the array and set it null so the tower doesn't keep attacking the dead unit
+			overlapingEnemies.Remove(closestEnemy);
+			closestEnemy = nullptr;
+			for (int32 i = 0; i < overlapingEnemies.Num(); i++)
+			{
+				//Set the closest enemy to be equal to the first index of overlapingEnemies;
+				closestEnemy = overlapingEnemies[i];
+				break;
+			}
 		}
 	}
 }
@@ -165,10 +177,10 @@ void ADefenseTower::LevelUpFunctionality()
 
 void ADefenseTower::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const FName tag = "Enemy";
+	const FName tag = "EnemyTarget";
 	if (!OtherActor->ActorHasTag(tag)) { return; }
 
-	overlapingEnemies.AddUnique(Cast<AEnemyInfatry>(OtherActor));
+	overlapingEnemies.AddUnique(OtherActor);
 	//if there is no closest enemy and an enemy had overlapped with tower then set that enemy to be the closest enemy
 	if(!closestEnemy) closestEnemy = overlapingEnemies[0];
 }

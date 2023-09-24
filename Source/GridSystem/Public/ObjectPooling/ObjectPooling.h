@@ -18,7 +18,7 @@ public:
 		AProjectile* GetPooledProjectile(AActor* newOwner);
 
 	UFUNCTION()
-		void ReturnPooledObject(AProjectile* projectile);
+		void ReturnPooledObject(AProjectile* projectile); 
 protected:
 	virtual void BeginPlay() override;
 

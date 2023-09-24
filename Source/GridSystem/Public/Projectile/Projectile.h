@@ -31,10 +31,8 @@ protected:
 	
 private:
 	FTimerHandle timerHandle;
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"));
-	AObjectPooling* objectPoolingActor;
-	void Return();
-
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		AObjectPooling* objectPoolingActor;
 
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
