@@ -4,9 +4,6 @@
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Player/ResourceManager.h"//--
-#include "Resource/Resource.h"
-
 #include "DataAssets/ResourceDataAsset.h"
 
 #include "NiagaraFunctionLibrary.h"
@@ -48,11 +45,6 @@ void AResourceBase::LoadDataAsset()
 	}
 }
 
-void AResourceBase::IsAttackAble()
-{
-
-}
-
 float AResourceBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -83,7 +75,17 @@ bool AResourceBase::IsResourceDestroyed()
 	return false;
 }
 
-void AResourceBase::PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound)
+void AResourceBase::OnHit(float damageAmount)
+{
+
+}
+
+bool AResourceBase::OnDeath()
+{
+	return false;
+}
+
+void AResourceBase::PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound) const
 {
 	if (!particle && !sound) { return; }
 

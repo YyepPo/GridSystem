@@ -7,12 +7,18 @@
 #include "Grid/GridRepresentative.h"
 #include "DataAssets/BuildingDataAsset.h"
 
+////
+//// This class if for spawning units like (archer,infantry etc);
+////
+
 AArcherGenerator::AArcherGenerator() :
 	UnitsGridLocation{ CreateDefaultSubobject<USceneComponent>(FName(TEXT("Units Grid Location"))) },
 	UnitsGridComponent { CreateDefaultSubobject<UUnitsGridComponent>(FName(TEXT("Units Grid Component"))) }
 {
 	UnitsGridLocation->SetupAttachment(GetRootComponent());
 	UnitsGridComponent->SetComponentOwner(this);
+	bOccupiesNeighbours = true;
+	if (units.Num() != 0) unitToBeSpawned = units[0];
 }
 
 void AArcherGenerator::BeginPlay()
@@ -24,6 +30,8 @@ void AArcherGenerator::BeginPlay()
 		UnitsGridComponent->SpawnUnitsGrid();
 		GetWorld()->GetTimerManager().SetTimer(BuildingFunctionalityTimerHandle, this, &AArcherGenerator::BuildingFunctionalityTimer, loadedBuildingDataAsset->functionTimeRate, true);
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%d level"), buildingLevelData.currentLevel);
 
 }
 
@@ -43,7 +51,7 @@ void AArcherGenerator::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponen
 void AArcherGenerator::BuildingFunctionality()
 {
 	Super::BuildingFunctionality();
-
+	OccupyNeighbours();
 	//spawn units overtime
 	if (UnitsGridComponent) UnitsGridComponent->SpawnUnitsGrid();
 }
@@ -56,20 +64,20 @@ void AArcherGenerator::BuildingFunctionalityTimer()
 		//when all units are spawned attack the mother base
 
 		//replace the player pawn with a MotherBuilding(its not yet created)
-		APawn* playerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
-		for (int32 i = 0; i < spawnedUnits.Num(); i++)
-		{
-			if (playerPawn) spawnedUnits[i]->GetUnitsUnitComponent()->NewMove(playerPawn->GetActorLocation());
-		}
+		//APawn* playerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+		//for (int32 i = 0; i < spawnedUnits.Num(); i++)
+		//{
+		//	if (playerPawn) spawnedUnits[i]->GetUnitsUnitComponent()->NewMove(playerPawn->GetActorLocation());
+		//}
 		//clear the FTimerHandle, so this function its called once  after all units are spawned 
 		GetWorld()->GetTimerManager().ClearTimer(BuildingFunctionalityTimerHandle);
 		return; 
 	}
 
-	if (GetWorld() && UnitToBeSpawned)
+	if (GetWorld() && unitToBeSpawned)
 	{
 		const FVector spawnLocation = GetActorLocation() + GetActorUpVector() * 100.f + GetActorForwardVector() * -150.f;
-		ANewFriendlyUnit* spawnedUnit = GetWorld()->SpawnActor<ANewFriendlyUnit>(UnitToBeSpawned, spawnLocation, GetActorRotation());
+		ANewFriendlyUnit* spawnedUnit = GetWorld()->SpawnActor<ANewFriendlyUnit>(unitToBeSpawned, spawnLocation, GetActorRotation());
 		if (spawnedUnit && UnitsGridComponent)
 		{
 			spawnedUnits.AddUnique(spawnedUnit);
@@ -96,16 +104,27 @@ void AArcherGenerator::LevelUpFunctionality()
 	Super::LevelUpFunctionality();
 
 	//on leveling up the building upgrade unitType to a stronger unitType
-	switch (buildingLevelData.currentLevel)
+
+	for (int32 k = 0; k < spawnedUnits.Num(); k++)
 	{
-		case 2:	
-			for (int32 i = 0; i < spawnedUnits.Num(); i++)
-			{
-				spawnedUnits[i]->Destroy();
-			}
-			spawnedUnitCounter = 0;
-			UnitToBeSpawned = UnitToBeSpawnedLevel2;
-			break;
+		spawnedUnits[k]->Destroy();
 	}
+	spawnedUnitCounter = 0;
+
+	for (int i = 0; i < buildingLevelData.maxLevel; ++i)
+	{
+		if(buildingLevelData.currentLevel == i)
+		{
+			unitToBeSpawned = units[i];
+			UE_LOG(LogTemp, Warning, TEXT("Same level"));
+			break;
+		}
+	}
+
+	for (int i = 0; i < UnitsGridComponent->grids.Num(); i++)
+	{
+		UnitsGridComponent->grids[i]->UnOccupyGrid();
+	}
+
 }
 

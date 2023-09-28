@@ -19,6 +19,8 @@ public:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Tick(float DeltaTime) override;
 
+	void SetTargetDedectionCollider(ECollisionEnabled::Type collisionType);
+
 	FORCEINLINE UUnitComponent* GetUnitsUnitComponent() const { return unitComponent; }
 protected:
 	virtual void BeginPlay() override;

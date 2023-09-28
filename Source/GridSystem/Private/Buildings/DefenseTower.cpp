@@ -105,14 +105,6 @@ void ADefenseTower::StartToAttack()
 	//Spawn a projectile in direction to the enemy
 	const FVector spawnPoint = projectileSpawnPoint->GetComponentLocation();
 	const FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(spawnPoint, closestEnemy->GetActorLocation());
-	//if (projectileClass)
-	//{
-	//	if (AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, spawnPoint, lookAtRotation))
-	//	{
-	//		projectile->SetOwner(this);
-	//		projectile->SetProjectileDamage(projectileDamage);
-	//	}
-	//}
 
 	if(objectPool)
 	{

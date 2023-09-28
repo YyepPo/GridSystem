@@ -32,7 +32,6 @@ void AUnitAIController::Tick(float DeltaTime)
 	if (bShouldDisableMoveRequest)
 	{
 		FAIRequestID requestID;
-		requestID.InvalidRequest;
 		FPathFollowingResult folow(FPathFollowingResultFlags::MovementStop);
 		if (folow.HasFlag(FPathFollowingResultFlags::MovementStop))
 		{
@@ -44,7 +43,6 @@ void AUnitAIController::Tick(float DeltaTime)
 void AUnitAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
 	Super::OnMoveCompleted(RequestID, Result);
-	OnMoveCompleteMDelegate.Broadcast();
 	OnMoveCompletedDelegate.Broadcast();
 }
 

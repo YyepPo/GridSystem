@@ -15,7 +15,6 @@ void AWoodGeneratorBuilding::BuildingFunctionalityTimer()
 {
 	Super::BuildingFunctionalityTimer();
 	if (!resource) { return; }
-
 	resource->AddWood(resourceAmount);
 }
 

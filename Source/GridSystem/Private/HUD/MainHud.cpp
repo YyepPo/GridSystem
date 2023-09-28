@@ -78,7 +78,6 @@ void AMainHud::OnUnitSelection()
 	//Loop through all selectedActors
 	for (int i = 0; i < actors.Num(); i++)
 	{
-
 		UUnitComponent* comp = Cast<UUnitComponent>(actors[i]->GetComponentByClass(unitComponentClass));
 		if (comp)
 		{

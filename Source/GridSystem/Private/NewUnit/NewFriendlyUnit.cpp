@@ -50,6 +50,11 @@ void ANewFriendlyUnit::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ANewFriendlyUnit::SetTargetDedectionCollider(ECollisionEnabled::Type collisionType)
+{
+	targetDedectCollider->SetCollisionEnabled(collisionType);
+}
+
 void ANewFriendlyUnit::TargetOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor->ActorHasTag("EnemyTarget")) return; 

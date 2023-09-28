@@ -12,6 +12,8 @@
 
 #include "HitInterface.h"
 
+#include "NewUnit/NewFriendlyUnit.h"
+
 #include "ObjectPooling/ObjectPooling.h"
 
 #define PrintToLog(message) UE_LOG(LogTemp,Warning,TEXT(message));
@@ -33,7 +35,10 @@ void UUnitComponent::PlayAMontage(UAnimMontage* montage) const
 void UUnitComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
 	unitComponentClass = UUnitComponent::StaticClass();
+
+	if (unitType == ETypeUnit::ETU_Archer && GetOwner()) ownerUnit = Cast<ANewFriendlyUnit>(GetOwner());
 
 	if (enemyAIController)
 			enemyAIController->OnMoveCompletedDelegate.AddDynamic(this, &UUnitComponent::OnMoveCompleteDelegateHandler);
@@ -41,7 +46,12 @@ void UUnitComponent::BeginPlay()
 
 void UUnitComponent::OnMoveCompleteDelegateHandler()
 {
-
+	if (ownerUnit && !bMoveComplete)
+	{
+		ownerUnit->SetTargetDedectionCollider(ECollisionEnabled::QueryOnly);
+		CheckForClosestTarget();
+		bMoveComplete = true;
+	}
 }
 
 void UUnitComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -76,7 +86,11 @@ void UUnitComponent::AttackBehaviour()
 {
 	if (unitState == UnitStates::EUS_Dead || bDeadUnit) { return; }
 
-	if (!currentTarget) { return; }
+	if (!currentTarget)
+	{
+		//PrintToLog("There is not target");
+		return;
+	}
 
 	if(CanUnitAttack(currentTarget))
 	{
@@ -93,6 +107,7 @@ void UUnitComponent::AttackBehaviour()
 
 void UUnitComponent::Attack()
 {
+	if (!currentTarget) { return; }
 	PlayAMontage(attackMontage);
 	unitState = UnitStates::EUS_Attacking;
 	GetWorld()->GetTimerManager().SetTimer(attackRateTimerHandle, this, &UUnitComponent::AttackRateHandle, attackRate);
@@ -111,49 +126,42 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 		return;
 	}
 
-	if (unitType == ETypeUnit::ETU_NormalInfantry || unitType == ETypeUnit::ETU_Cavalry)
+	IHitInterface* hitInterface = Cast<IHitInterface>(currentTarget);
+	if (hitInterface)
 	{
-		IHitInterface* hitInterface = Cast<IHitInterface>(currentTarget);
-		if(hitInterface)
+		hitInterface->OnHit(attackDamage);
+		if (hitInterface->OnDeath())
 		{
-			hitInterface->OnHit(attackDamage);
-			if(hitInterface->OnDeath())
-			{
-				overlapingTargets.Remove(currentTarget);
-				currentTarget = nullptr;
-				return;
-				
-			}
-			
+			overlapingTargets.Remove(currentTarget);
+			currentTarget = nullptr;
+			return;
 		}
-		//Deal damage to current target
+
+	}
+
+	if (unitType != ETypeUnit::ETU_Archer)
+	{
 		UGameplayStatics::ApplyDamage(currentTarget,
 			attackDamage,
 			GetOwner()->GetInstigatorController(),
 			GetOwner(),
 			UDamageType::StaticClass());
-
-
 	}
 	else if (unitType == ETypeUnit::ETU_Archer && projectileClass && projectileSpawnPositionComp)
 	{
-		//AProjectile* spawnedProjectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, projectileSpawnPositionComp->GetComponentLocation(), projectileSpawnPositionComp->GetComponentRotation());
-		//if (spawnedProjectile)
-		//{
-		//	spawnedProjectile->SetOwner(GetOwner());
-		//	spawnedProjectile->SetInstigator(Cast<APawn>(GetOwner()));
-		//	spawnedProjectile->SetProjectileDamage(projectileDamage);
-		//}
+		if (!currentTarget) { return; }
+
 		if(!objectPooling)
 		{
 			PrintToLog("There is no object pooling actor");
 			return;
 		}
 
-		if(GetOwner())
+		if (GetOwner())
 		{
-			PrintToLog("Get arrow from pool");
 			objectPooling->GetPooledProjectile(GetOwner());
+			const FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), currentTarget->GetActorLocation());
+			GetOwner()->SetActorRotation(lookRotation);
 		}
 	}
 
@@ -184,7 +192,6 @@ void UUnitComponent::OnUnitHit(float damage)
 void UUnitComponent::OnUnitDeath()
 {
 	unitState = UnitStates::EUS_Dead;
-	PrintToLog("Unit is dead");
 }
 
 void UUnitComponent::OnHit(float damageAmount)
@@ -212,15 +219,28 @@ void UUnitComponent::CheckForClosestTarget()
 	if (!currentTarget)
 	{
 		float minDistance = 9999.f;
+		if (overlapingTargets.Num() == 0) { return; }
 		for (int32 i = 0; i < overlapingTargets.Num(); i++)
 		{
+			if (overlapingTargets.Num() == 0) { break; }
 			const float distance = (overlapingTargets[i]->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
 			if (distance < minDistance)
 			{
 				minDistance = distance;
 				currentTarget = overlapingTargets[i];
-				const FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), currentTarget->GetActorLocation());
-				GetOwner()->SetActorRotation(lookRotation);
+				if(currentTarget)
+				{
+					const FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), currentTarget->GetActorLocation());
+					GetOwner()->SetActorRotation(lookRotation);
+					UUnitComponent* targetComponent = Cast<UUnitComponent>(currentTarget->GetComponentByClass(unitComponentClass));
+					if (targetComponent) targetComponent->SetIsTargeted(true);
+
+					GEngine->AddOnScreenDebugMessage(3, 1.f, FColor::Red,
+					                                 FString::Printf(TEXT("%s is current target of : %s"),
+						                                 *currentTarget->GetActorNameOrLabel(),
+						                                 *GetOwner()->GetActorNameOrLabel()));
+					break;
+				}
 			}
 		}
 	}
@@ -229,9 +249,21 @@ void UUnitComponent::CheckForClosestTarget()
 void UUnitComponent::UpdateOverlapingTargets(AActor* target)
 {
 	if (!target) { return; }
+
 	overlapingTargets.AddUnique(target);
-	if (overlapingTargets.Num() == 0) { return; }
-	if(!currentTarget)currentTarget = overlapingTargets[0];
+
+	if (currentTarget) { return;; }
+
+	if(unitType != ETypeUnit::ETU_Miner)
+	{
+		CheckForClosestTarget();
+	}
+	else
+	{
+		currentTarget = target;
+	}
+	
+
 }
 
 #pragma endregion Combat
@@ -245,10 +277,14 @@ void UUnitComponent::NewMove(FVector movePosition)
 		UE_LOG(LogTemp, Warning, TEXT("There is not ai controller for new units"));
 		return;
 	}
-
+	GEngine->AddOnScreenDebugMessage(2, 1.f, FColor::Red, FString::Printf(TEXT("Move function")));
 	//Move to the ai to given position
 	FAIMoveRequest moveRequest;
 	moveRequest.SetAcceptanceRadius(40.f);
+	bMoveComplete = false;
+	//disable dedect collider so when going to its destination and when it counters an enemy doesnt stop so the enemy doesnt attack
+	if(ownerUnit)ownerUnit->SetTargetDedectionCollider(ECollisionEnabled::NoCollision);
+
 	if (unitState == UnitStates::EUS_Attacking) 
 	{ 
 		moveRequest.SetGoalLocation(GetOwner()->GetActorLocation());

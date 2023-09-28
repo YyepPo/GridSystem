@@ -8,10 +8,15 @@
 #include "UnitComponent.generated.h"
 
 class AUnitAIController;
+
 class UHealthComponent;
 class UDecalComponent;
+
 class AProjectile;
+
 class AObjectPooling;
+
+class ANewFriendlyUnit;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GRIDSYSTEM_API UUnitComponent : public UActorComponent,public IHitInterface
@@ -19,18 +24,23 @@ class GRIDSYSTEM_API UUnitComponent : public UActorComponent,public IHitInterfac
 	GENERATED_BODY()
 
 public:
+
 	UUnitComponent();
-	UFUNCTION(BlueprintCallable)
-		FORCEINLINE void SetObjectPool(AObjectPooling* newPoolObject) { objectPooling = newPoolObject; }
-	FORCEINLINE void SetNewUnitAIController(AUnitAIController* AIController) { enemyAIController = AIController; }
-	FORCEINLINE void SetAnimInstance(UAnimInstance* newAnimInstance) { animInstance = newAnimInstance; }
-	
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void NewMove(FVector movePosition);
 
 	virtual void OnHit(float damageAmount) override;
 	virtual bool OnDeath() override;
+
+	void SetIsTargeted(bool bNewIsTargeted) { bIsTargeted = bNewIsTargeted; }
+
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void SetObjectPool(AObjectPooling* newPoolObject) { objectPooling = newPoolObject; }
+	FORCEINLINE void SetNewUnitAIController(AUnitAIController* AIController) { enemyAIController = AIController; }
+	FORCEINLINE void SetAnimInstance(UAnimInstance* newAnimInstance) { animInstance = newAnimInstance; }
+	FORCEINLINE ETypeUnit GetUnitsType() const { return unitType; }
 
 #pragma region UnitSelection
 
@@ -107,12 +117,12 @@ private:
 #pragma region Health
 
 	UPROPERTY(EditAnywhere, Category = "Health")
-		UAnimMontage* hitMontage;		
-	UPROPERTY(EditAnywhere, Category = "Health")
-		UAnimMontage* deathMontage;		
+		UAnimMontage* hitMontage;
+	UPROPERTY(EditAnywhere, Category = "Health|Death")
+		UAnimMontage* deathMontage;
 	UPROPERTY(EditAnywhere, Category = "Health")
 		float healthAmount;
-	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UPROPERTY(VisibleAnywhere, Category = "Health|Death")
 		bool bDeadUnit; //is unit dead or not
 #pragma endregion Health
 
@@ -131,19 +141,23 @@ private:
 		bool bIsUnitSelectable;
 	UPROPERTY(VisibleAnywhere)
 		bool bIsUnitSelected;
-
 	UPROPERTY()
 		UMaterialInstanceDynamic* dynamicMaterialInstance;
 
 #pragma endregion UnitSelection
 
 	UPROPERTY()
+		ANewFriendlyUnit* ownerUnit;
+	UPROPERTY()
 		AUnitAIController* enemyAIController;
 	UPROPERTY()
 		UAnimInstance* animInstance;
 	//units current destination, when movecomplete has finished unit rotates towards destination variable
 	FVector destination;
+	bool bMoveComplete = false;
 
-	UPROPERTY(EditAnywhere)
+	bool bIsTargeted = false;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		USceneComponent* projectileSpawnPositionComp;
 };

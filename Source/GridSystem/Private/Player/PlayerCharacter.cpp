@@ -3,7 +3,7 @@
 
 #include "PlayerController/GridPlayerController.h"
 
-#include "UnitBase.h"
+#include "UnitBase.h" // not in use(delete later)
 
 #include "Kismet/GameplayStatics.h"
 
@@ -20,8 +20,7 @@
 #include "HUD/MainHud.h"
 
 #include "NewUnit/UnitComponent.h"
-#include "ObjectPooling/ObjectPooling.h"
-
+#include "NewUnit/TypeUnit.h"
 
 APlayerCharacter::APlayerCharacter() :
 	SpringArm{ CreateDefaultSubobject<USpringArmComponent>(FName(TEXT("Spring Arm"))) },
@@ -130,24 +129,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction(FName("UnitBehaviour"), EInputEvent::IE_Pressed, this, &APlayerCharacter::UnitBehaviour);
 
-	PlayerInputComponent->BindAction(FName("Attack"), EInputEvent::IE_Pressed, this, &APlayerCharacter::SpawnProjectile);
-}
-
-void APlayerCharacter::SpawnProjectile()
-{
-	if(!objectPoolingActor)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("There is no object pooling actor"));
-		return;
-	}
-
-	//objectPoolingActor->GetPooledProjectile();
 }
 
 void APlayerCharacter::AttachBuildingToGrid()
 {
-	
-
 	//If inventory is open and there is not current building(not building selected) then building cannot be attached to grid
 	if (!currentBuilding) { return; }
 	if (bIsInventoryOpen ) { return; }

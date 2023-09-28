@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TypeOfResource.h"
-#include "Units/IsAttackableInterface.h"
+#include "HitInterface.h"
 #include "ResourceBase.generated.h"
 
 class UNiagaraSystem;
@@ -12,16 +12,20 @@ class UResourceManager;
 class UResourceDataAsset;
 
 UCLASS()
-class GRIDSYSTEM_API AResourceBase : public AActor,public IIsAttackableInterface
+class GRIDSYSTEM_API AResourceBase : public AActor,public IHitInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	AResourceBase();
 
-	virtual void IsAttackAble() override;
-	
 	bool IsResourceDestroyed();
+
+	UFUNCTION()
+		virtual void OnHit(float damageAmount) override;
+	UFUNCTION()
+		virtual bool OnDeath() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -65,7 +69,7 @@ protected:
 private:
 	void LoadDataAsset();
 
-	void PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound);
+	void PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound) const;
 
 	UPROPERTY()
 		UResourceManager* resourceManager;

@@ -28,7 +28,7 @@ void AProjectile::Activate()
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
-
+	boxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	if (GetOwner()) SetActorLocation(GetOwner()->GetActorLocation());
 
 }
@@ -55,7 +55,16 @@ void AProjectile::BeginPlay()
  
 void AProjectile::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetOwner()) { return;; }
+	if (GetOwner() && OtherActor == GetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Projectile overllaped with the owner"));
+		return;;
+	}
+
+	if(!OtherActor->ActorHasTag(targetTag))
+	{
+		return;
+	}
 
 	IHitInterface* hitInterface = Cast<IHitInterface>(OtherActor);
 	if (hitInterface) hitInterface->OnHit(damageAmount);
@@ -66,10 +75,21 @@ void AProjectile::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		objectPoolingActor->ReturnPooledObject(this);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("objectPooling is not valid"));
+	}
 }
 
 void AProjectile::DealDamage(AActor* damagedActor)
 {	
-	if(damagedActor) UGameplayStatics::ApplyDamage(damagedActor, damageAmount, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	if (damagedActor && GetOwner())
+	{
+		UGameplayStatics::ApplyDamage(damagedActor, damageAmount, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: doesnt have an Owner"), *GetActorNameOrLabel());
+	}
 }
 

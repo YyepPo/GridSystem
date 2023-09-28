@@ -35,13 +35,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Units")
 		bool bIsFriendlyBuilding = true;
 
-	UPROPERTY(EditAnywhere, Category = "Units")
-		TSubclassOf<ANewFriendlyUnit> UnitToBeSpawned;
 	UPROPERTY(VisibleAnywhere, Category = "Units")
 		int32 spawnedUnitCounter; 
 	UPROPERTY(VisibleAnywhere, Category = "Units")
 		TArray<ANewFriendlyUnit*> spawnedUnits;
-	UPROPERTY(EditAnywhere, Category = "Units")
-		TSubclassOf<ANewFriendlyUnit> UnitToBeSpawnedLevel2;
-
+	UPROPERTY(EditAnywhere, Category = "Units|Upgraded")
+		TArray<TSubclassOf<ANewFriendlyUnit>> units;
+	UPROPERTY()
+		TSubclassOf<ANewFriendlyUnit> unitToBeSpawned;
 };

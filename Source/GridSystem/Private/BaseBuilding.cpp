@@ -19,7 +19,8 @@
 #include "DataAssets/BuildingDataAsset.h"
 
 ABaseBuilding::ABaseBuilding() :
-	ResourcePopUpWidget{ CreateDefaultSubobject<UWidgetComponent>(TEXT("Resource Pop Up Widget")) }
+	ResourcePopUpWidget{ CreateDefaultSubobject<UWidgetComponent>(TEXT("Resource Pop Up Widget")) },
+	buildingLevelUpWidgetComponent {CreateDefaultSubobject<UWidgetComponent>(TEXT("Level Up Widget Component"))}
 {
 	PrimaryActorTick.bCanEverTick = false;
 	//Create a Static mesh
@@ -50,6 +51,8 @@ void ABaseBuilding::BeginPlay()
 			bOccupiesNeighbours = loadedBuildingDataAsset->bOccupiesNeighbours;
 		}
 	}
+
+	LevelUpWidgetComponent = buildingLevelUpWidgetComponent->GetWidget();
 
 	//Get APlayerCharcater class and from there get player's resource manager
 	PlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
@@ -87,13 +90,20 @@ void ABaseBuilding::BindingMethodsToDelegates()
 void ABaseBuilding::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Actor is beign clicked"));
-	if (!loadedBuildingDataAsset) { return; }
 
-	if (LevelUpWidgetComponent) LevelUpWidgetComponent->SetVisibility(ESlateVisibility::Visible);
-	
+	if (LevelUpWidgetComponent)
+	{
+		LevelUpWidgetComponent->SetVisibility(ESlateVisibility::Visible);
+		UE_LOG(LogTemp, Warning, TEXT("There is a level up widget"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There is no level up widget component"));
+	}
+
 	//Update level texts(current level, next level)
 	SetUpLevelWidgetTexts(buildingLevelData.currentLevel);
-	
+
 	//Update upgrade cost texts
 	SetUpUpgradeCostText();
 }
@@ -126,7 +136,7 @@ void ABaseBuilding::LevelUpFunctionality()
 	SetUpLevelWidgetTexts(buildingLevelData.currentLevel);
 	SetUpUpgradeCostText();
 
-	UGameplayStatics::PlaySoundAtLocation(this, loadedBuildingDataAsset->levelUpSound, GetActorLocation());
+	if(buildingDataAsset->levelUpSound) UGameplayStatics::PlaySoundAtLocation(this, loadedBuildingDataAsset->levelUpSound, GetActorLocation());
 	GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Blue, FString::Printf(TEXT("%d"), buildingLevelData.currentLevel));
 }
 
@@ -152,20 +162,21 @@ bool ABaseBuilding::HasPlayerEnoughResourcesToLevelUpBuilding()
 
 bool ABaseBuilding::HasEnoughResource(int32 index)
 {
-	const bool bHasEnoughPoeple = resource->GetPeopleAmount() > upgradeCosts[index].peopleAmount;///////////////////////////////
-	const bool bHasEnoughCoin = resource->GetCoinAmount() >upgradeCosts[index].coinAmount;	  ///////////////////////////////
-	const bool bHasEnoughStone = resource->GetStoneAmount() > upgradeCosts[index].stoneAmount;	  ///////////////////////////////
-	const bool bHasEnoughWood = resource->GetWoodAmount() > upgradeCosts[index].woodAmount;	  ///////////////////////////////
-	if (bHasEnoughPoeple && bHasEnoughCoin && bHasEnoughStone && bHasEnoughWood) { return true; }
-	return false;
+	const bool bHasEnoughPoeple = resource->GetPeopleAmount() >= upgradeCosts[index].peopleAmount;
+	const bool bHasEnoughCoin = resource->GetCoinAmount() >= upgradeCosts[index].coinAmount;	  
+	const bool bHasEnoughStone = resource->GetStoneAmount() >= upgradeCosts[index].stoneAmount;	  
+	const bool bHasEnoughWood = resource->GetWoodAmount() >= upgradeCosts[index].woodAmount;	  
+
+	return bHasEnoughPoeple && bHasEnoughCoin && bHasEnoughStone && bHasEnoughWood;
+
 }
 
 void ABaseBuilding::ConsumeMaterials(int32 index)
 {
-	resource->RemovePeople(upgradeCosts[index].peopleAmount);/////////////////////////
-	resource->RemoveCoin(upgradeCosts[index].coinAmount);	  /////////////////////////
-	resource->RemoveStone(upgradeCosts[index].stoneAmount);  /////////////////////////
-	resource->RemoveWood(upgradeCosts[index].woodAmount);	  /////////////////////////
+	resource->RemovePeople(upgradeCosts[index].peopleAmount);
+	resource->RemoveCoin(upgradeCosts[index].coinAmount);	 
+	resource->RemoveStone(upgradeCosts[index].stoneAmount);  
+	resource->RemoveWood(upgradeCosts[index].woodAmount);	 
 	UE_LOG(LogTemp, Warning, TEXT("Consume materials"));
 }
 
@@ -208,9 +219,12 @@ void ABaseBuilding::SetUpLevelWidgetTexts(int32 currentLevel) const
 
 void ABaseBuilding::SetUpUpgradeCostText()
 {
-	if (!BuildingLevelUpWidget) { 
+	if (!BuildingLevelUpWidget) 
+	{ 
 		GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Red, FString::Printf(TEXT("no building level up widget")));
-		return; }
+		return;
+	}
+
 	for (int32 i = 0; i < upgradeCosts.Num(); i++)
 	{
 		if (i == buildingLevelData.currentLevel)
@@ -244,6 +258,7 @@ void ABaseBuilding::BuildingFunctionality()
 	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	if (GetOccupiesNeighbours()) OccupyNeighbours();
+
 
 	GetWorldTimerManager().SetTimer(BuildingFunctionalityTimerHandle,this,&ABaseBuilding::BuildingFunctionalityTimer,functionTimeRate,true);
 }

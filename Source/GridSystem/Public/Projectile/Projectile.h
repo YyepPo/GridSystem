@@ -44,11 +44,14 @@ private:
 
 	void DealDamage(AActor* damagedActor);
 
-	float damageAmount = 1.f;
+	UPROPERTY(EditAnywhere)
+		float damageAmount = 1.f;
+	UPROPERTY(EditAnywhere)
+		FName targetTag;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* staticMesh;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		UBoxComponent* boxCollider;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UProjectileMovementComponent* projectileMovementComp;

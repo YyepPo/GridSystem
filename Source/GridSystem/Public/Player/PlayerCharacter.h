@@ -47,7 +47,6 @@ private:
 
 	void AttachBuildingToGrid();
 
-	void SpawnProjectile();
 	//void ShowWidget();
 
 	void UnitBehaviour();

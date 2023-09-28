@@ -68,7 +68,7 @@ public:
 	//Building functionality when placed
 	virtual void BuildingFunctionality();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		UWidget* LevelUpWidgetComponent;
 	UPROPERTY()
 		UBuildingLevelUpWidget* BuildingLevelUpWidget;
@@ -160,7 +160,8 @@ private:
 		UBuildingsLevelUpComponent* BuildingLevelManager;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UWidgetComponent* ResourcePopUpWidget;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		UWidgetComponent* buildingLevelUpWidgetComponent;
 
 public:
 	UFUNCTION(BlueprintCallable)
