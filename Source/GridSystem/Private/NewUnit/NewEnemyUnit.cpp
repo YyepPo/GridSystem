@@ -50,10 +50,14 @@ void ANewEnemyUnit::Tick(float DeltaTime)
 
 void ANewEnemyUnit::TargetOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherActor->ActorHasTag("FriendlyTarget")) { 
+	if (!OtherActor->ActorHasTag("FriendlyTarget")) 
+	{ 
 		//UE_LOG(LogTemp, Warning, TEXT("overlaping actor :%s doesnt have the FriendlyTarget tag "), *OtherActor->GetActorNameOrLabel());
-		return; }
+		return;
+	}
+
 	if (!unitComponent) { return; }
+
 	unitComponent->UpdateOverlapingTargets(OtherActor);
 }
 

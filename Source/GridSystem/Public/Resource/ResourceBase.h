@@ -15,8 +15,9 @@ UCLASS()
 class GRIDSYSTEM_API AResourceBase : public AActor,public IHitInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
+
 	AResourceBase();
 
 	bool IsResourceDestroyed();
@@ -27,6 +28,7 @@ public:
 		virtual bool OnDeath() override;
 
 protected:
+
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -55,20 +57,9 @@ protected:
 	/// VFX
 	UPROPERTY(EditAnywhere, Category = "VFX")
 		float systemZOffset;
-	UPROPERTY()
-		UNiagaraSystem* onHitVFX;
-	UPROPERTY()
-		UNiagaraSystem* onDestroyedVFX;
-
-	/// Sounds
-	UPROPERTY()
-		USoundBase* hitSound;
-	UPROPERTY()
-		USoundBase* destroyedSound;
 
 private:
 	void LoadDataAsset();
-
 	void PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound) const;
 
 	UPROPERTY()
@@ -77,16 +68,20 @@ private:
 		class AResource* resource;
 
 	/// Data Asset
-	UPROPERTY(EditAnywhere, Category = "MyData")
+	UPROPERTY(EditAnywhere, Category = "Data Asset")
 		TSoftObjectPtr<UResourceDataAsset> resourceDataAsset;
+	UPROPERTY(EditAnywhere, Category = "Data Asset")
+		FString assetPathString;
 	UPROPERTY()
 		UResourceDataAsset* loadedDataAsset;
 
 public:
+
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetResourceManager(AResource* newResource) { resource = newResource; }
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE AResource* GetResource() const { return resource; }
+
 	FORCEINLINE bool GetIsResourceDestroyed() const { return bIsDestroyed; }
-	FORCEINLINE ETypeResource GetResourceType() const { return resourceType; }
+	FORCEINLINE ETypeResource GetResourceType() const;
 };

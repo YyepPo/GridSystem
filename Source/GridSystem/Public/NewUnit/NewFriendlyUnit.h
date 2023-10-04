@@ -15,6 +15,7 @@ class GRIDSYSTEM_API ANewFriendlyUnit : public ACharacter
 	GENERATED_BODY()
 
 public:
+
 	ANewFriendlyUnit();
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Tick(float DeltaTime) override;
@@ -22,7 +23,9 @@ public:
 	void SetTargetDedectionCollider(ECollisionEnabled::Type collisionType);
 
 	FORCEINLINE UUnitComponent* GetUnitsUnitComponent() const { return unitComponent; }
+
 protected:
+
 	virtual void BeginPlay() override;
 
 private:
@@ -31,8 +34,6 @@ private:
 
 	UFUNCTION()
 		void TargetOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void TargetOverlapEnd(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UUnitComponent* unitComponent;
@@ -44,4 +45,14 @@ private:
 		UDecalComponent* selectionDecalComponent;
 
 #pragma endregion Components
+
+#pragma region ResourceMiner
+
+	void AttachWeaponToMinersHand() const;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		UStaticMeshComponent* minersWeaponStaticMesh;
+#pragma endregion ResourceMiner
+
+	UPROPERTY(EditAnywhere, Category = "Target")
+		FName targetTag;
 };

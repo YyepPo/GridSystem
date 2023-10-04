@@ -8,15 +8,16 @@
 
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Engine/ObjectLibrary.h"
 
-AResourceBase::AResourceBase() 
+AResourceBase::AResourceBase() :
+	staticMesh { CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Static Mesh"))) },
+	boxCollider { CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Box Collider"))) }
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	staticMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Static Mesh")));
 	SetRootComponent(staticMesh);
 
-	boxCollider = CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Box Collider")));
 	boxCollider->SetupAttachment(GetRootComponent());
 }
 
@@ -30,18 +31,31 @@ void AResourceBase::BeginPlay()
 
 void AResourceBase::LoadDataAsset()
 {
-	if (resourceDataAsset.IsValid())
+	const FString assetPath = assetPathString;
+
+	// Load the UObjectLibrary for the specified asset path
+	UObjectLibrary* objectLibrary = UObjectLibrary::CreateLibrary(UResourceDataAsset::StaticClass(), false, true);
+	objectLibrary->LoadAssetDataFromPath(assetPath);
+	objectLibrary->LoadAssetsFromPath(assetPath);
+	TArray<FAssetData> assetDataList;
+	objectLibrary->GetAssetDataList(assetDataList);
+
+	if (assetDataList.Num() > 0)
 	{
-		loadedDataAsset = resourceDataAsset.LoadSynchronous();
+		loadedDataAsset = Cast<UResourceDataAsset>(assetDataList[0].GetAsset());
 		if (loadedDataAsset)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *loadedDataAsset->name);
 			staticMesh->SetStaticMesh(loadedDataAsset->staticMesh);
-			resourceType = loadedDataAsset->resourceType;
-			onHitVFX = loadedDataAsset->onHitVFX;
-			onDestroyedVFX = loadedDataAsset->destroyedVFX;
-			hitSound = loadedDataAsset->hitSound;
-			destroyedSound = loadedDataAsset->destroyedSound;
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to cast the loaded asset to UResourceDataAsset"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No assets found at path: %s"), *assetPath);
 	}
 }
 
@@ -49,15 +63,16 @@ float AResourceBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	//When this component gets hit, player gains a x amount of resource 
-	loadedDataAsset->OnResourceHit(resource);
+	//When component gets hit, player gains a x amount of resource
+	if(loadedDataAsset) loadedDataAsset->OnResourceHit(resource);
 
 	if (IsResourceDestroyed()) { return 0; }
+
 	//Prevents health amount to go below zero
 	health = FMath::Max(health - DamageAmount, 0);
 
 	//play a hit vfx and sound
-	PlaySoundAndVFX(onHitVFX, hitSound);
+	if(loadedDataAsset)PlaySoundAndVFX(loadedDataAsset->hitVFX,loadedDataAsset->hitSound);
 
 	return DamageAmount;
 }
@@ -68,7 +83,7 @@ bool AResourceBase::IsResourceDestroyed()
 	if (health <= 0)
 	{
 		bIsDestroyed = true;
-		PlaySoundAndVFX(onDestroyedVFX, destroyedSound);
+		if(loadedDataAsset) PlaySoundAndVFX(loadedDataAsset->destroyedVFX,loadedDataAsset->destroyedSound);
 		Destroy();
 		return true;
 	}
@@ -82,7 +97,7 @@ void AResourceBase::OnHit(float damageAmount)
 
 bool AResourceBase::OnDeath()
 {
-	return false;
+	return IsResourceDestroyed();
 }
 
 void AResourceBase::PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound) const
@@ -95,4 +110,11 @@ void AResourceBase::PlaySoundAndVFX(UNiagaraSystem* particle, USoundBase* sound)
 
 	//sound
 	if (sound)UGameplayStatics::PlaySoundAtLocation(this, sound, GetActorLocation());
+}
+
+ETypeResource AResourceBase::GetResourceType() const
+{
+	if (loadedDataAsset) return loadedDataAsset->resourceType;
+
+	return ETypeResource::ETR_None;
 }

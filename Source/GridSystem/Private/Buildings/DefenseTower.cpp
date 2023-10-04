@@ -2,19 +2,15 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/HealthComponent.h"
-#include "Components/WidgetComponent.h"
+
+#include "NewUnit/UnitComponent.h"
 
 #include "HUD/HealthBarWidget.h"
 
 #include "Grid/GridRepresentative.h"
 
-#include "Projectile/Projectile.h"
-
-#include "Units/EnemyInfatry.h"
-
 #include "Kismet/KismetMathLibrary.h"
 
-#include "NewUnit/UnitComponent.h"
 #include "ObjectPooling/ObjectPooling.h"
 
 ADefenseTower::ADefenseTower() :
@@ -26,11 +22,6 @@ ADefenseTower::ADefenseTower() :
 
 	enemyDedectionCollider->SetupAttachment(GetRootComponent());
 	projectileSpawnPoint->SetupAttachment(GetRootComponent());
-}
-
-void ADefenseTower::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 }
 
 void ADefenseTower::BeginPlay()
@@ -66,6 +57,7 @@ float ADefenseTower::TakeDamage(float DamageAmount, const FDamageEvent& DamageEv
 
 void ADefenseTower::OnHit(float damageAmount)
 {
+	//Blueprint implementable event(check blueprint)
 	OnTowerHit();
 }
 
@@ -99,17 +91,29 @@ void ADefenseTower::OnTowerDestroyedDelegateHandler()
 
 void ADefenseTower::StartToAttack()
 {
+	//check if closest target is dead
 	if (!closestEnemy) { return; }
-	if (overlapingEnemies.Num() == 0) { return; }
+	targetUnitComponent = (targetUnitComponent == nullptr) ? Cast<UUnitComponent>(closestEnemy->GetComponentByClass(unitComponentClass)) : targetUnitComponent;
+	if (!targetUnitComponent) { return; }
+	if (targetUnitComponent->GetUnitDead())
+	{
+		overlapingEnemies.Remove(closestEnemy);
+		closestEnemy = nullptr;
+		targetUnitComponent = nullptr;
+		if (overlapingEnemies.Num() == 0) { return; }
+		closestEnemy = overlapingEnemies[0];
+	}
 
-	//Spawn a projectile in direction to the enemy
-	const FVector spawnPoint = projectileSpawnPoint->GetComponentLocation();
-	const FRotator lookAtRotation = UKismetMathLibrary::FindLookAtRotation(spawnPoint, closestEnemy->GetActorLocation());
+	const FRotator lookDirection = UKismetMathLibrary::FindLookAtRotation(projectileSpawnPoint->GetComponentLocation(), closestEnemy->GetActorLocation());
+	projectileSpawnPoint->SetRelativeRotation(lookDirection);
 
 	if(objectPool)
 	{
-		directionToTarget = closestEnemy->GetActorLocation() - projectileSpawnPoint->GetComponentLocation();
-		objectPool->GetPooledProjectile(this);
+		objectPool->GetPooledProjectile(this,projectileSpawnPoint->GetComponentLocation());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Object pool is not available in %s"),*GetActorNameOrLabel());
 	}
 
 	//set tower state to attacking so the tower doesn't attack multiple times
@@ -120,28 +124,8 @@ void ADefenseTower::StartToAttack()
 
 void ADefenseTower::BackToUnocuppiedState()
 {
-	//If there are no overlapping enemies then return because downbelow we set the closest enemy 
-	//to be equal to the first index of overlappingEnemies, if there are no overlapping enemies then closestEnemy is going to be null
-	if (overlapingEnemies.Num() == 0) { return; }
-
-	//set tower state to unoccupied so the tower can start attacking again
+	//Set state to ETS_Unoccupied so the tower doesn't attack rapidly
 	towerState = ETowerState::ETS_Unoccupied;
-	if (closestEnemy)
-	{
-		UUnitComponent* closestEnemyUnitComp = Cast<UUnitComponent>(closestEnemy->GetComponentByClass(unitComponentClass));
-		if(closestEnemyUnitComp && closestEnemyUnitComp->OnDeath())
-		{
-			//when unit is dead remove from the array and set it null so the tower doesn't keep attacking the dead unit
-			overlapingEnemies.Remove(closestEnemy);
-			closestEnemy = nullptr;
-			for (int32 i = 0; i < overlapingEnemies.Num(); i++)
-			{
-				//Set the closest enemy to be equal to the first index of overlapingEnemies;
-				closestEnemy = overlapingEnemies[i];
-				break;
-			}
-		}
-	}
 }
 
 void ADefenseTower::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
@@ -153,7 +137,6 @@ void ADefenseTower::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, 
 void ADefenseTower::LevelUpFunctionality()
 {
 	Super::LevelUpFunctionality();
-	if (upgradeData.Num() == 0) { return; }
 
 	//On Level up upgrade static mesh and the projectile damage amount
 	for (int32 i = 0; i < upgradeData.Num(); i++)
@@ -162,7 +145,6 @@ void ADefenseTower::LevelUpFunctionality()
 		{
 			StaticMesh->SetStaticMesh(upgradeData[i].mesh);
 			projectileDamage = upgradeData[i].damage;
-			UE_LOG(LogTemp, Warning, TEXT("projectiles damage is : %f"), projectileDamage);
 		}
 	}
 }

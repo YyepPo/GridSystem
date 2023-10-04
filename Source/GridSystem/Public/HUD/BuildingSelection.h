@@ -16,8 +16,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* BuildingSelectionText;
 
-	UPROPERTY(meta = (BindWidget))
-		class UImage* BackGround;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,meta = (BindWidget))
+		class UButton* BackGround;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UVerticalBox* VerticalBoxBuildings;

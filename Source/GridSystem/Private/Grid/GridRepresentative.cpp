@@ -1,22 +1,14 @@
 #include "Grid/GridRepresentative.h"
 #include "Components/BoxComponent.h"
 
-AGridRepresentative::AGridRepresentative()
+AGridRepresentative::AGridRepresentative() :
+	boxCollider{ CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Box Collider"))) },
+	staticMesh{ CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Static Mesh"))) }
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	InitializeComponents();
-}
-
-void AGridRepresentative::InitializeComponents()
-{
-	//Create a BoxComponent(BoxCollider) to handle collision
-	BoxCollider = CreateDefaultSubobject<UBoxComponent>(FName(TEXT("Box Collider")));
-	SetRootComponent(BoxCollider);
-
-	//Create a StaticMeshComponent
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Static Mesh")));
-	StaticMesh->SetupAttachment(GetRootComponent());
+	SetRootComponent(boxCollider);
+	staticMesh->SetupAttachment(GetRootComponent());
 }
 
 void AGridRepresentative::BeginPlay()
@@ -52,7 +44,7 @@ void AGridRepresentative::UnOccupyGrid()
 
 void AGridRepresentative::ChangeMaterialColor(FLinearColor newOccupiedColor,FLinearColor newUnoccupiedColor) const
 {
-	UMaterialInstanceDynamic* materialInstance = StaticMesh->CreateDynamicMaterialInstance(0);
+	UMaterialInstanceDynamic* materialInstance = staticMesh->CreateDynamicMaterialInstance(0);
 	if (materialInstance)
 	{
 		const FName baseColorParameter = FName(TEXT("BaseColor"));

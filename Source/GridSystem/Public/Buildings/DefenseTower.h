@@ -6,10 +6,13 @@
 #include "DefenseTower.generated.h"
 
 class UBoxComponent;
-class AProjectile;
+
 class UHealthComponent;
 class UHealthBarWidget;
+
 class AObjectPooling;
+
+class UUnitComponent;
 
 UENUM(BlueprintType)
 enum class ETowerState : uint8
@@ -42,13 +45,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE void SetObjectPooling(AObjectPooling* newObjectPooling) { objectPool = newObjectPooling; }
 
-	UFUNCTION(BlueprintCallable)
-		FORCEINLINE FVector GetDirectionToTarget() const { return directionToTarget; }
 	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 
-	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 #pragma region Attack
@@ -69,28 +69,28 @@ protected:
 	virtual void LevelUpFunctionality() override;
 
 private:
+
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void OnTowerDestroyedDelegateHandler();
 
-#pragma region Attack
+#pragma region Combat
 
 	void StartToAttack();
 	void BackToUnocuppiedState();
 
-	UPROPERTY(VisibleAnywhere,Category = "Tower State")
+	UPROPERTY(VisibleAnywhere,Category = "Combat")
 		ETowerState towerState = ETowerState::ETS_Idle;
 
-	UPROPERTY(VisibleAnywhere ,Category = "Enemy")
+	UPROPERTY(VisibleAnywhere ,Category = "Combat")
 		TArray<AActor*> overlapingEnemies;
-	UPROPERTY(VisibleAnywhere ,Category = "Enemy")
-	AActor* closestEnemy;
-	UPROPERTY(EditAnywhere, Category = "Enemy")
-		TSubclassOf<class UUnitComponent> unitComponentClass;
-
-	UPROPERTY(EditAnywhere, Category = "Projectile")
-		TSubclassOf<AProjectile> projectileClass;
+	UPROPERTY(VisibleAnywhere ,Category = "Combat",BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
+		AActor* closestEnemy;
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+		UUnitComponent* targetUnitComponent;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+		TSubclassOf<UUnitComponent> unitComponentClass;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 		float attackRate;
@@ -99,8 +99,7 @@ private:
 	UPROPERTY()
 		AObjectPooling* objectPool;
 
-	FVector directionToTarget;
-#pragma endregion Attack
+#pragma endregion Combat
 
 	UPROPERTY()
 		UHealthBarWidget* healthBarWidget;
@@ -111,7 +110,7 @@ private:
 		TArray<FUpgradingData> upgradeData;
 	UPROPERTY(EditAnywhere)
 		UBoxComponent* enemyDedectionCollider;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		USceneComponent* projectileSpawnPoint;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UHealthComponent* healthComponent;

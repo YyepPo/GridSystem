@@ -16,7 +16,7 @@ class GRIDSYSTEM_API AProjectile : public AActor
 public:	
 	AProjectile();
 
-	void Activate();
+	void Activate(FVector spawnPoint);
 	void Deactivate();
 
 	UFUNCTION(BlueprintCallable)

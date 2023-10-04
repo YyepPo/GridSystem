@@ -1,9 +1,14 @@
 #include "Projectile/Projectile.h"
+
 #include "Components/BoxComponent.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+
 #include "GameFramework/ProjectileMovementComponent.h"
+
 #include "HitInterface.h"
+
 #include "ObjectPooling/ObjectPooling.h"
 
 AProjectile::AProjectile() :
@@ -17,7 +22,7 @@ AProjectile::AProjectile() :
 	staticMesh->SetupAttachment(GetRootComponent());
 }
 
-void AProjectile::Activate()
+void AProjectile::Activate(FVector spawnPoint)
 {
 	bIsActive = true;
 	projectileMovementComp->bSimulationEnabled = true;
@@ -29,7 +34,16 @@ void AProjectile::Activate()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	boxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	if (GetOwner()) SetActorLocation(GetOwner()->GetActorLocation());
+	if (!GetOwner()) { return; }
+
+	if (!GetOwner()->ActorHasTag("Tower"))
+	{
+		SetActorLocation(GetOwner()->GetActorLocation());
+	}
+	else
+	{
+		SetActorLocation(spawnPoint);
+	}
 
 }
 

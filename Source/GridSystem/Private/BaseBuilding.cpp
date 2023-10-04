@@ -18,6 +18,9 @@
 
 #include "DataAssets/BuildingDataAsset.h"
 
+#include "Engine/ObjectLibrary.h"
+
+
 ABaseBuilding::ABaseBuilding() :
 	ResourcePopUpWidget{ CreateDefaultSubobject<UWidgetComponent>(TEXT("Resource Pop Up Widget")) },
 	buildingLevelUpWidgetComponent {CreateDefaultSubobject<UWidgetComponent>(TEXT("Level Up Widget Component"))}
@@ -42,15 +45,7 @@ void ABaseBuilding::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (buildingDataAsset.IsValid())
-	{
-		loadedBuildingDataAsset = buildingDataAsset.LoadSynchronous();
-		if (loadedBuildingDataAsset)
-		{
-			UE_LOG(LogTemp,Warning,TEXT("Building data asset is loaded"));
-			bOccupiesNeighbours = loadedBuildingDataAsset->bOccupiesNeighbours;
-		}
-	}
+	LoadDataAsset();
 
 	LevelUpWidgetComponent = buildingLevelUpWidgetComponent->GetWidget();
 
@@ -68,6 +63,31 @@ void ABaseBuilding::BeginPlay()
 
 	LevelBasedResourceGain();
 
+}
+
+void ABaseBuilding::LoadDataAsset()
+{
+	const FString assetPath = assetPathString;
+
+	UObjectLibrary* objectLibrary = UObjectLibrary::CreateLibrary(UBuildingDataAsset::StaticClass(), false, true);
+	objectLibrary->LoadAssetDataFromPath(assetPath);
+	objectLibrary->LoadAssetsFromPath(assetPath);
+	TArray<FAssetData> assetDataList;
+	objectLibrary->GetAssetDataList(assetDataList);
+
+	if(assetDataList.Num() > 0)
+	{
+		loadedBuildingDataAsset = Cast<UBuildingDataAsset>(assetDataList[0].GetAsset());
+		if(loadedBuildingDataAsset)
+		{
+			bOccupiesNeighbours = loadedBuildingDataAsset->bOccupiesNeighbours;
+			UE_LOG(LogTemp, Warning, TEXT("%s actors building data asset is loaded"),*GetActorNameOrLabel());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s actors building data asset is NOT loaded"),*GetActorNameOrLabel());
+		}
+	}
 }
 
 void ABaseBuilding::SetUpLevelWidget()
@@ -89,7 +109,13 @@ void ABaseBuilding::BindingMethodsToDelegates()
 
 void ABaseBuilding::OnBoxColliderClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Actor is beign clicked"));
+	if(BuildingState != EBuildingState::EBS_Placed)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Building is not placed,so the building cannot be upgraded"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%s building is beign clicked"),*GetActorNameOrLabel());
 
 	if (LevelUpWidgetComponent)
 	{
@@ -136,7 +162,7 @@ void ABaseBuilding::LevelUpFunctionality()
 	SetUpLevelWidgetTexts(buildingLevelData.currentLevel);
 	SetUpUpgradeCostText();
 
-	if(buildingDataAsset->levelUpSound) UGameplayStatics::PlaySoundAtLocation(this, loadedBuildingDataAsset->levelUpSound, GetActorLocation());
+	if(loadedBuildingDataAsset && loadedBuildingDataAsset->levelUpSound) UGameplayStatics::PlaySoundAtLocation(this, loadedBuildingDataAsset->levelUpSound, GetActorLocation());
 	GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Blue, FString::Printf(TEXT("%d"), buildingLevelData.currentLevel));
 }
 

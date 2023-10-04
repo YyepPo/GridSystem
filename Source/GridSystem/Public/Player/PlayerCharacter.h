@@ -24,7 +24,9 @@ public:
 		void SetObjectPoolingActor(AObjectPooling* newPoolingActor) { objectPoolingActor = newPoolingActor; }
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		class UResourceManager* ResourceManager;// Resource Manager Component
+
 protected:
+
 	virtual void BeginPlay() override;
 
 private:
@@ -90,8 +92,8 @@ private:
 	bool bEastNeighbourIsOccupied = false;
 	bool bWesthNeighbourIsOccupied = false;
 
-
 #pragma region UnitFormation
+
 	UPROPERTY(EditAnywhere,Category = "Grid Formation")
 		TSubclassOf<AGridRepresentative> gridRepresentativeClass;
 	UPROPERTY(EditAnywhere,Category = "Grid Formation")
@@ -106,10 +108,13 @@ private:
 	float rightOffset = 0;
 	bool bWasSelected = false;
 	FVector formationDirection;
+
 public:
 	UFUNCTION(BlueprintCallable)
 		void SetFormationToVerticalFormation();
 	UFUNCTION(BlueprintCallable)
 		void SetFormationToHorizontalFormation();
+
 #pragma endregion
+
 };

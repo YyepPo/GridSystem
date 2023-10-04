@@ -132,8 +132,6 @@ protected:
 		AResource* resource;
 
 	//Data Asset
-	UPROPERTY(EditAnywhere, Category = "MyData")
-		TSoftObjectPtr<UBuildingDataAsset> buildingDataAsset;
 	UPROPERTY()
 		UBuildingDataAsset* loadedBuildingDataAsset;
 private:
@@ -141,11 +139,17 @@ private:
 		void SetResource(AResource* newResource) {resource = newResource;}
 
 	void SetUpLevelWidget();
+
 	void BindingMethodsToDelegates();
+
+	void LoadDataAsset();
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<ABaseBuilding> ClassRepresentative;
 	bool bIsClickable = true;
+
+	UPROPERTY(EditAnywhere, Category = "Data Asset")
+		FString assetPathString;
 
 	//Enums
 	UPROPERTY(VisibleAnywhere)

@@ -32,14 +32,12 @@ protected:
 	virtual void BeginPlay() override;
 
 private:	
-	void InitializeComponents();
-
 	void ChangeMaterialColor(FLinearColor newOccupiedColor, FLinearColor newUnoccupiedColor) const;
 
 	UPROPERTY(EditAnywhere)
-		class UBoxComponent* BoxCollider;
+		class UBoxComponent* boxCollider;
 	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* StaticMesh;
+		UStaticMeshComponent* staticMesh;
 
 	UPROPERTY(VisibleAnywhere,Category = "Grid")
 		EGridState GridState = EGridState::EGS_UnOccupied;

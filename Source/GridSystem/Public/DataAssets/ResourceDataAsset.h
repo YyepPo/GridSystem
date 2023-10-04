@@ -13,6 +13,7 @@ class GRIDSYSTEM_API UResourceDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
+
 	UFUNCTION(BlueprintCallable)
 		void OnResourceHit(class AResource* resourceManager);
 
@@ -20,18 +21,23 @@ public:
 		FString name;
 	UPROPERTY(EditAnywhere)
 		FString description;
+
 	UPROPERTY(EditAnywhere)
 		UStaticMesh* staticMesh;
+
 	UPROPERTY(EditAnywhere)
 		ETypeResource resourceType;
+
 	UPROPERTY(EditAnywhere)
 		int32 minResource;
 	UPROPERTY(EditAnywhere)
 		int32 maxResource;
+
 	UPROPERTY(EditAnywhere)
-		UNiagaraSystem* onHitVFX;
+		UNiagaraSystem* hitVFX;
 	UPROPERTY(EditAnywhere)
 		UNiagaraSystem* destroyedVFX;
+
 	UPROPERTY(EditAnywhere)
 		USoundBase* hitSound;
 	UPROPERTY(EditAnywhere)

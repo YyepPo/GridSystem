@@ -20,7 +20,7 @@ void AObjectPooling::BeginPlay()
 	}
 }
 
-AProjectile* AObjectPooling::GetPooledProjectile(AActor* newOwner)
+AProjectile* AObjectPooling::GetPooledProjectile(AActor* newOwner,FVector projectileSpawnPoint)
 {
 	for (AProjectile* projectile : projectilePool)
 	{
@@ -28,11 +28,13 @@ AProjectile* AObjectPooling::GetPooledProjectile(AActor* newOwner)
 		{
 			projectile->SetOwner(newOwner);
 			projectile->SetInstigator(Cast<APawn>(newOwner));
-			projectile->Activate();
+			projectile->Activate(projectileSpawnPoint);
 			return projectile;
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("No available object in the pool"));
+	UE_LOG(LogTemp, Warning, TEXT("No available projectile in the pool,new projectile has been spawned"));
+	AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(projectileClass, GetActorLocation(), GetActorRotation());
+	projectilePool.AddUnique(projectile);
 	return nullptr;
 }
 

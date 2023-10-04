@@ -68,6 +68,10 @@ public:
 
 	FORCEINLINE float GetUnitHealthAmount() const { return healthAmount; }
 	FORCEINLINE bool GetUnitDead() const { return bDeadUnit; }
+	FORCEINLINE bool IsUnitInDeadState() const { return unitState == UnitStates::EUS_Dead; }
+
+	UPROPERTY()
+		UUnitComponent* unitComponent;
 
 #pragma endregion Health
 
@@ -81,7 +85,7 @@ private:
 #pragma region Combat
 
 	bool IsUnitInAttackRangeOf(AActor* target) const;
-	bool CanUnitAttack(AActor* target) const;
+	bool CanUnitAttack(AActor* target);
 	void AttackBehaviour();
 	void Attack();
 	void AttackRateHandle();
@@ -107,7 +111,8 @@ private:
 		float projectileDamage;
 	UPROPERTY()
 		UHealthComponent* targetHealthComponent;
-	TSubclassOf<UUnitComponent> unitComponentClass;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<UUnitComponent> unitComponentClass;
 	FTimerHandle attackRateTimerHandle;
 
 	UPROPERTY()
@@ -125,6 +130,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Health|Death")
 		bool bDeadUnit; //is unit dead or not
 #pragma endregion Health
+
+#pragma region Miners
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		UStaticMeshComponent* minersWeaponStaticMesh;
+#pragma endregion Miners
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		UnitStates unitState = UnitStates::EUS_Idle;

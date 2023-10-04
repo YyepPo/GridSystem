@@ -15,7 +15,7 @@ public:
 	AObjectPooling();
 
 	UFUNCTION()
-		AProjectile* GetPooledProjectile(AActor* newOwner);
+		AProjectile* GetPooledProjectile(AActor* newOwner,FVector projectileSpawnPoint);
 
 	UFUNCTION()
 		void ReturnPooledObject(AProjectile* projectile); 

@@ -36,8 +36,6 @@ void UUnitComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	unitComponentClass = UUnitComponent::StaticClass();
-
 	if (unitType == ETypeUnit::ETU_Archer && GetOwner()) ownerUnit = Cast<ANewFriendlyUnit>(GetOwner());
 
 	if (enemyAIController)
@@ -49,7 +47,6 @@ void UUnitComponent::OnMoveCompleteDelegateHandler()
 	if (ownerUnit && !bMoveComplete)
 	{
 		ownerUnit->SetTargetDedectionCollider(ECollisionEnabled::QueryOnly);
-		CheckForClosestTarget();
 		bMoveComplete = true;
 	}
 }
@@ -73,41 +70,60 @@ bool UUnitComponent::IsUnitInAttackRangeOf(AActor* target) const
 	return squareRootDistance <= attackDistance * attackDistance;
 }
 
-bool UUnitComponent::CanUnitAttack(AActor* target) const
-{
-	const bool canAttack = target != nullptr &&
-		IsUnitInAttackRangeOf(target) &&
-		unitState != UnitStates::EUS_Attacking;
-
-	return canAttack;
-}
-
 void UUnitComponent::AttackBehaviour()
 {
 	if (unitState == UnitStates::EUS_Dead || bDeadUnit) { return; }
 
 	if (!currentTarget)
 	{
-		//PrintToLog("There is not target");
+		return;
+	}
+
+	//check whenever the current target is dead
+	const UUnitComponent* targetsUnitComponent = Cast<UUnitComponent>(currentTarget->GetComponentByClass(unitComponentClass));
+	if (targetsUnitComponent && targetsUnitComponent->GetUnitDead())
+	{
+		overlapingTargets.Remove(currentTarget);
+		UE_LOG(LogTemp, Warning, TEXT("%s is dead remove from overlaping targets array"), *currentTarget->GetActorNameOrLabel());
+		targetsUnitComponent = nullptr;
+		currentTarget = nullptr;
+		CheckForClosestTarget();
 		return;
 	}
 
 	if(CanUnitAttack(currentTarget))
 	{
-		PrintToScreen(FString::Printf(TEXT("Unit can attack mother building")));
 		Attack();
 		enemyAIController->ShouldDisableMoveRequest(true);
 	}
 	else
 	{
-		PrintToScreen(FString::Printf(TEXT("Unit CANNOT attack mother building")));
 		NewMove(currentTarget->GetActorLocation());
 	}
+}
+
+bool UUnitComponent::CanUnitAttack(AActor* target)
+{
+	unitComponent = (unitComponent == nullptr) ? Cast<UUnitComponent>(target->GetComponentByClass(unitComponentClass)) : unitComponent;
+
+	//check if unit can attack a tower
+	const bool canAttackTower = target != nullptr &&
+		IsUnitInAttackRangeOf(target) &&
+		unitState != UnitStates::EUS_Attacking;
+
+	//check if unit can attack an enemy unit
+	const bool canAttackUnit = target != nullptr &&
+		IsUnitInAttackRangeOf(target) &&
+		unitState != UnitStates::EUS_Attacking &&
+		unitComponent && unitComponent->IsUnitInDeadState() == false;
+
+	return canAttackTower || canAttackUnit;
 }
 
 void UUnitComponent::Attack()
 {
 	if (!currentTarget) { return; }
+
 	PlayAMontage(attackMontage);
 	unitState = UnitStates::EUS_Attacking;
 	GetWorld()->GetTimerManager().SetTimer(attackRateTimerHandle, this, &UUnitComponent::AttackRateHandle, attackRate);
@@ -126,6 +142,8 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 		return;
 	}
 
+	//If target is dead,set the currentTarget to nullptr, so the unit doesn't keep attacking the dead target
+	
 	IHitInterface* hitInterface = Cast<IHitInterface>(currentTarget);
 	if (hitInterface)
 	{
@@ -136,7 +154,6 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 			currentTarget = nullptr;
 			return;
 		}
-
 	}
 
 	if (unitType != ETypeUnit::ETU_Archer)
@@ -159,44 +176,30 @@ void UUnitComponent::DealDamageToTargetAnimNotify()
 
 		if (GetOwner())
 		{
-			objectPooling->GetPooledProjectile(GetOwner());
+			objectPooling->GetPooledProjectile(GetOwner(),FVector::Zero());
 			const FRotator lookRotation = UKismetMathLibrary::FindLookAtRotation(GetOwner()->GetActorLocation(), currentTarget->GetActorLocation());
 			GetOwner()->SetActorRotation(lookRotation);
 		}
 	}
 
-	//If target is dead,set the currentTarget to nullptr, so the unit doesn't keep attacking the dead target
-	const UUnitComponent* targetsUnitComponent = Cast<UUnitComponent>(currentTarget->GetComponentByClass(unitComponentClass));
-	if (targetsUnitComponent && targetsUnitComponent->GetUnitDead())
-	{
-		overlapingTargets.Remove(currentTarget);
-		targetsUnitComponent = nullptr;
-		currentTarget = nullptr;
-
-		CheckForClosestTarget();
-	}
 }
 
 void UUnitComponent::OnUnitHit(float damage)
 {
-	if (healthAmount <= 0)
+	if (OnDeath())
 	{
-		bDeadUnit = true;
-		OnUnitDeath();
 		return;
 	}
 	PlayAMontage(hitMontage);
 	healthAmount -= damage;
 }
 
-void UUnitComponent::OnUnitDeath()
-{
-	unitState = UnitStates::EUS_Dead;
-}
-
 void UUnitComponent::OnHit(float damageAmount)
 {
-	if (OnDeath()) {return;}
+	if (OnDeath() )
+	{
+		return;
+	}
 
 	PlayAMontage(hitMontage);
 	healthAmount -= damageAmount;
@@ -204,13 +207,19 @@ void UUnitComponent::OnHit(float damageAmount)
 
 bool UUnitComponent::OnDeath()
 {
-	if (healthAmount <= 0)
+	if (healthAmount <= 0 && GetOwner())
 	{
 		bDeadUnit = true;
+		UE_LOG(LogTemp, Warning, TEXT("%s is Dead"), *GetOwner()->GetActorNameOrLabel());
 		OnUnitDeath();
 		return true;
 	}
 	return false;
+}
+
+void UUnitComponent::OnUnitDeath()
+{
+	unitState = UnitStates::EUS_Dead;
 }
 
 void UUnitComponent::CheckForClosestTarget()
@@ -219,10 +228,20 @@ void UUnitComponent::CheckForClosestTarget()
 	if (!currentTarget)
 	{
 		float minDistance = 9999.f;
-		if (overlapingTargets.Num() == 0) { return; }
+		if (overlapingTargets.Num() == 0)
+		{
+			return;
+		}
+
 		for (int32 i = 0; i < overlapingTargets.Num(); i++)
 		{
-			if (overlapingTargets.Num() == 0) { break; }
+
+			if (overlapingTargets.Num() == 0)
+			{
+				overlapingTargets.Empty();
+				break;
+			}
+
 			const float distance = (overlapingTargets[i]->GetActorLocation() - GetOwner()->GetActorLocation()).Size();
 			if (distance < minDistance)
 			{
@@ -278,6 +297,7 @@ void UUnitComponent::NewMove(FVector movePosition)
 		return;
 	}
 	GEngine->AddOnScreenDebugMessage(2, 1.f, FColor::Red, FString::Printf(TEXT("Move function")));
+
 	//Move to the ai to given position
 	FAIMoveRequest moveRequest;
 	moveRequest.SetAcceptanceRadius(40.f);
@@ -291,6 +311,7 @@ void UUnitComponent::NewMove(FVector movePosition)
 		enemyAIController->MoveTo(moveRequest);
 		return; 
 	}
+
 	moveRequest.SetGoalLocation(movePosition);
 	enemyAIController->MoveTo(moveRequest);
 	destination = moveRequest.GetDestination();
